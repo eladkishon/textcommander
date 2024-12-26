@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "start": "ts-node emergency_bot.ts",
+    "start": "ANTHROPIC_API_KEY=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 ts-node emergency_bot.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.33.1",
     "puppeteer": "^23.10.4",
     "qrcode-terminal": "^0.12.0",
     "ts-node": "^10.9.2",

@@ -1,4 +1,4 @@
-class EventTracker {
+export class EventTracker {
     maxEvents: any;
     timeRange: any;
     numBuckets: any;
@@ -6,8 +6,9 @@ class EventTracker {
     totalEvents: number;
     currentBucketIndex: number;
     lastBucketTime: number;
+    onThresholdTriggered: any;
     
-    constructor(maxEvents, timeRangeInHours) {
+    constructor({maxEvents, timeRangeInHours, onThresholdTriggered}) {
       this.maxEvents = maxEvents; // Maximum allowed events in the time range
       this.timeRange = timeRangeInHours; // Total time range in hours
       this.numBuckets = timeRangeInHours; // One bucket per hour
@@ -15,6 +16,7 @@ class EventTracker {
       this.totalEvents = 0; // Total events in the sliding window
       this.currentBucketIndex = 0; // Tracks the "current" bucket
       this.lastBucketTime = Date.now(); // Timestamp when the last bucket was updated
+      this.onThresholdTriggered = onThresholdTriggered
     }
   
     addEvent() {
@@ -33,7 +35,7 @@ class EventTracker {
   
       // Check if we need to trigger the function
       if (this.totalEvents > this.maxEvents) {
-        this.triggerFunction();
+        this.onThresholdTriggered()
       }
     }
   
@@ -53,8 +55,4 @@ class EventTracker {
       }
     }
   
-    triggerFunction() {
-      console.log("Triggered due to excessive events!");
-      // Add your custom logic here
-    }
   }
