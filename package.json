@@ -1,0 +1,22 @@
+{
+  "name": "whatsappbot",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "ts-node emergency_bot.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "puppeteer": "^23.10.4",
+    "qrcode-terminal": "^0.12.0",
+    "ts-node": "^10.9.2",
+    "whatsapp-web.js": "1.26.1-alpha.3"
+  },
+  "devDependencies": {
+    "@flydotio/dockerfile": "^0.5.9",
+    "@types/qrcode-terminal": "^0.12.2"
+  }
+}
