@@ -1,5 +1,5 @@
-import { EmergencyPlugin } from "./src/emergency_plugin";
 import { ChatCommanderBus } from "./src/commander";
+import { EmergencyPlugin } from "./src/plugins/emergency";
 import { getWhatsappClient } from "./src/whatsappclient";
 
 

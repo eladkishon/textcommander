@@ -1,13 +1,10 @@
 import { Call, Client, LocalAuth, Message } from "whatsapp-web.js";
 import * as qrcode from 'qrcode-terminal';
+import { CommanderPlugin } from "./types";
 
 
 
-export interface CommanderPlugin {
-    init(client: Client): Promise<void>
-    onMessage(msg: Message): Promise<void>
-    onCall(call: Call): Promise<void>
-}
+
 
 // Emergency
 // Group helper
@@ -44,11 +41,10 @@ export class ChatCommanderBus {
 
         return new Promise<void>((resolve) => {
             this.client.once('ready', async () => {
+                console.log('Client is ready.')
                 await Promise.all(this.plugins.map(p => p.init(this.client)))
                 resolve()
             })
-
-
         })
     }
 }
