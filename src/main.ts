@@ -5,7 +5,7 @@ import { getWhatsappClient } from "./whatsappclient"
 
 const client = getWhatsappClient()
 const bus = new ChatCommanderBus(client)
-// bus.add_plugin(new EmergencyPlugin())
+bus.add_plugin(new EmergencyPlugin())
 bus.add_plugin(new ChatCleanerPlugin())
 
 bus.start().then().catch(console.error)
