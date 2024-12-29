@@ -1,4 +1,4 @@
-# WhatsappCommander
+# TextCommander
 
 Stay organized, maintain relationships, and ensure peace of mind for your loved ones. 
 
