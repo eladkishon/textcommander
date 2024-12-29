@@ -39,7 +39,7 @@ const Navbar = () => {
                             theme === 'violet' && 'text-violet-600'
                         )}
                     /> */}
-                    <span className='hidden text-lg font-semibold md:block'>
+                    <span className='hidden text-lg font-extrabold md:block'>
                         TextCommander
                     </span>
                 </Link>
