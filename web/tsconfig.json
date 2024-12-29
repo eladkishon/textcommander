@@ -1,25 +1,23 @@
 {
-    "include": ["**/*.ts", "**/*.tsx"],
-    "compilerOptions": {
-        "types": ["@remix-run/node", "vite/client"],
-        "skipLibCheck": true,
-        "module": "ESNext",
-        "moduleResolution": "Bundler",
-        "lib": ["DOM", "DOM.Iterable", "ES2019"],
-        "isolatedModules": true,
-        "esModuleInterop": true,
-        "jsx": "react-jsx",
-        "resolveJsonModule": true,
-        "target": "ES2019",
-        "strict": true,
-        "allowJs": true,
-        "forceConsistentCasingInFileNames": true,
-        "baseUrl": ".",
-        "paths": {
-            "~/*": ["./app/*"]
-        },
-
-        // Vite takes care of building everything, not tsc.
-        "noEmit": true
-    }
+  "include": ["env.d.ts", "**/*.ts", "**/*.tsx", "netlify-edge-plugin.ts", "../web2/tailwind.config.ts"],
+  "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "target": "ES2022",
+    "strict": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./app/*"]
+    },
+    // Vite takes care of building everything, not tsc.
+    "noEmit": true
+  }
 }

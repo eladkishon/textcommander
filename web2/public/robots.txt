@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://saasstellar.nader.run
+
+# Sitemaps
+Sitemap: https://saasstellar.nader.run/sitemap.xml
