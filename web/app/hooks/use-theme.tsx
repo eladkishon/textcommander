@@ -27,7 +27,7 @@ export const getTheme = (): ThemeName => {
     return theme
 }
 
-const themeAtom = atomWithStorage<ThemeName>('theme', 'orange')
+const themeAtom = atomWithStorage<ThemeName>('theme', 'green')
 
 export default function useTheme() {
     return useAtom(themeAtom)
