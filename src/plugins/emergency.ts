@@ -83,6 +83,7 @@ class EmergencyContactHandler {
 const DEFAULT_EMERGE_RESP = 'היי מה נשמע ?'
 
 export class EmergencyPlugin implements CommanderPlugin {
+   
     async init(client: Client) {
         console.log('Initializing emergency plugin')
         const contacts = await client.getContacts()
@@ -104,6 +105,8 @@ export class EmergencyPlugin implements CommanderPlugin {
 
         }
     }
-
+    onCommand(command: string): Promise<void> {
+        return 
+    }
 }
 

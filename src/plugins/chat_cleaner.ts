@@ -8,6 +8,7 @@ import schedule = require('node-schedule');
 
 
 export class ChatCleanerPlugin implements CommanderPlugin {
+   
     client: Client;
 
 
@@ -40,7 +41,7 @@ export class ChatCleanerPlugin implements CommanderPlugin {
             await chat.syncHistory()
         }
 
-        console.log(`Found ${archivedChats.length} archived chats.`)
+        // console.log(`Found ${archivedChats.length} archived chats.`)
         fs.writeFile('archived_chats.json', JSON.stringify(archivedChats.map(c => ({ id: c.id._serialized, name: c.name, isGroup: c.isGroup })), null, 2))
 
         // ===== Exited groups =====
@@ -66,7 +67,7 @@ export class ChatCleanerPlugin implements CommanderPlugin {
     private async deleteChatsWithConfirmation(categoryName: string, chats: Chat[]) {
 
         if (chats.length === 0) {
-            console.log(`No ${categoryName} chats found.`)
+            // console.log(`No ${categoryName} chats found.`)
             return
         }
 
@@ -90,6 +91,11 @@ export class ChatCleanerPlugin implements CommanderPlugin {
             console.log('Deletion completed.')
         }
 
+        
+    }
+
+    onCommand(command: string): Promise<void> {
+        return 
     }
 
 }
