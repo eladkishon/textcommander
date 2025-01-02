@@ -1,14 +1,14 @@
 {
-  "name": "whatsappbot",
+  "name": "textcommander",
   "version": "1.0.0",
-  "main": "main.js",
+  "main": "src/main.ts",
   "scripts": {
     "start": "ANTHROPIC_API_KEY=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 ts-node src/main.ts",
     "test": "ANTHROPIC_API_KEY=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 ts-node test.ts"
   },
-  "author": "",
+  "author": "Elad Kishon",
   "license": "ISC",
-  "description": "",
+  "description": "take command of your text messages",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.33.1",
     "@types/lowdb": "^1.0.15",
@@ -23,7 +23,6 @@
     "whatsapp-web.js": "1.26.1-alpha.3"
   },
   "devDependencies": {
-    "@flydotio/dockerfile": "^0.5.9",
     "@types/qrcode-terminal": "^0.12.2"
   }
 }

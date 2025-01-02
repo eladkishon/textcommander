@@ -9,12 +9,12 @@ import { CommanderPlugin } from "./types";
 // Emergency
 // Group helper
 // Auto Replyer
-export class ChatCommanderBus {
+export class TextCommanderBus {
     plugins: CommanderPlugin[];
     client: Client;
     botChat: Chat;
 
-    constructor(client) {
+    constructor(client: Client) {
         this.client = client
         this.plugins = []
     }
