@@ -4,16 +4,16 @@ import schedule = require('node-schedule');
 import { differenceInDays, format } from "date-fns";
 import FileSync from 'lowdb/adapters/FileSync';
 import low from 'lowdb';
-const defaultData = { friends: {} }
 const adapter = new FileSync('data/friendskeeper.json')
 const db = low(adapter)
 
-db.defaults({ friends: {} })
-  .write()
+const defaultData = { friends: {} }
+db.defaults(defaultData)
+    .write()
 
 
 export class FriendsKeeperPlugin implements CommanderPlugin {
-  
+
     client: Client;
     commandChat: Chat;
     waitingForReply: boolean;
@@ -33,10 +33,11 @@ export class FriendsKeeperPlugin implements CommanderPlugin {
                 continue
             }
 
+            const lastMessage = messages.at(-1)
 
-            const daysDiff = differenceInDays(Date.now(), friend.lastMessage.timestamp * 1000)
+            const daysDiff = differenceInDays(Date.now(), lastMessage.timestamp * 1000)
 
-            if (daysDiff > 30) {
+            if (daysDiff > 1) {
                 // console.log(`Friend ${friend.name} (having ${messages.length}) has not been active for ${daysDiff} days`)
                 unactiveFriendsChats.push(friend)
             }
@@ -57,11 +58,21 @@ export class FriendsKeeperPlugin implements CommanderPlugin {
         }
 
 
+       await this.reachOutToUnactiveFriends()
+
+    }
+    async reachOutToUnactiveFriends() {
+        // for every tracked friend, send a predefined message
+        const trackedFriends = db.get('friends').value()
+        for (const friend of trackedFriends) {
+            const chat = await this.client.getChatById(friend.id)
+            chat.sendMessage(`Hey ${friend.name}, it's been a while since we last talked. How are you doing?`)
+        }
     }
     async init(client: Client, commandChat: Chat) {
         this.client = client
         this.commandChat = commandChat
-        
+
 
         // run now and every day same time
         this.checkForUnactiveFriends()
@@ -79,7 +90,7 @@ export class FriendsKeeperPlugin implements CommanderPlugin {
 
     }
 
-    async onCommand(command: string){
+    async onCommand(command: string) {
         if (this.lastUnactiveFriendsChats) {
             const selectedFriends = command.split('\n').map(n => parseInt(n))
             const friendsToAdd = this.lastUnactiveFriendsChats.filter((c, i) => selectedFriends.includes(i + 1))
@@ -88,21 +99,17 @@ export class FriendsKeeperPlugin implements CommanderPlugin {
                 // add friends to the db if they are not already there
                 friendsToAdd.forEach(f => {
                     if (!db.get('friends').has(f.id._serialized).value()) {
-                        // friends[f.id._serialized] = { name: f.name, added: Date.now() }
-                        db.get('friends').set(f.id._serialized, { name: f.name, added: Date.now() }).write()
+                        db.get('friends').set(f.id.user, { name: f.name, added: Date.now(), chatId: f.id }).write()
                     }
                 })
 
-                await db.write()
                 this.commandChat.sendMessage(`TextCommander💡: Added ${friendsToAdd.map(f => f.name).join(', ')} to your keep-in-touch circle.`)
             }
-
             this.lastUnactiveFriendsChats = null
-
         }
     }
     async onMessage(msg: Message) {
     }
-    async onCall(call: Call){
+    async onCall(call: Call) {
     }
 }
