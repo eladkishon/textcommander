@@ -11,8 +11,10 @@
   "description": "",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.33.1",
+    "@types/lowdb": "^1.0.15",
     "date-fns": "^4.1.0",
     "inquirer": "^12.3.0",
+    "lowdb": "^1.0.0",
     "node-schedule": "^2.1.1",
     "pino": "^9.6.0",
     "puppeteer": "^23.10.4",

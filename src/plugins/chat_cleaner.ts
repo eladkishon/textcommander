@@ -42,7 +42,7 @@ export class ChatCleanerPlugin implements CommanderPlugin {
         }
 
         // console.log(`Found ${archivedChats.length} archived chats.`)
-        fs.writeFile('archived_chats.json', JSON.stringify(archivedChats.map(c => ({ id: c.id._serialized, name: c.name, isGroup: c.isGroup })), null, 2))
+        // fs.writeFile('archived_chats.json', JSON.stringify(archivedChats.map(c => ({ id: c.id._serialized, name: c.name, isGroup: c.isGroup })), null, 2))
 
         // ===== Exited groups =====
         const exitedGroups = archivedChats.filter(c => c.isGroup && !(c as GroupChat).participants.map(p => p.id.user).includes(myNumber))
