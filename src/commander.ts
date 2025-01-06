@@ -43,6 +43,7 @@ export class TextCommanderBus {
                 }
                 return
             }
+            await Promise.all(this.plugins.map(p => p.onMessage(m)))
         })
 
         this.client.on('message', async (m) => {

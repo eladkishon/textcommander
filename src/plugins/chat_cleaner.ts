@@ -4,6 +4,8 @@ const { setTimeout } = require('timers/promises');
 import fs = require('fs/promises');
 import inquirer from "inquirer";
 import schedule = require('node-schedule');
+import { DATA_FOLDER } from "../fs";
+import path = require("path");
 
 
 
@@ -73,7 +75,7 @@ export class ChatCleanerPlugin implements CommanderPlugin {
 
         const deletionCandidatesData = chats.map(c => ({ id: c.id._serialized, name: c.name, isGroup: c.isGroup, isArchived: c.archived }))
 
-        await fs.writeFile(`${categoryName}_deletion_candidates.json`, JSON.stringify(deletionCandidatesData, null, 2))
+        await fs.writeFile(path.join(DATA_FOLDER,`${categoryName}_deletion_candidates.json`), JSON.stringify(deletionCandidatesData, null, 2))
 
         const { isDelete } = await inquirer
             .prompt([
