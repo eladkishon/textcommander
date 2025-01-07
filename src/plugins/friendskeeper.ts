@@ -8,16 +8,14 @@ const adapter = new FileSync('data/friendskeeper.json')
 const db = low(adapter)
 
 const defaultData = { friends: {} }
-db.defaults(defaultData)
-    .write()
-
+db.defaults(defaultData).write()
 
 export class FriendsKeeperPlugin implements CommanderPlugin {
 
     client: Client;
     commandChat: Chat;
     waitingForReply: boolean;
-    lastUnactiveFriendsChats: Chat[]
+    lastUnactiveFriendsChats: {chat: Chat, messages: Message[]}[]
     db: any;
 
 
@@ -26,7 +24,7 @@ export class FriendsKeeperPlugin implements CommanderPlugin {
 
         const friends = chats.filter(c => !c.isGroup)
         const unactiveFriendsChats = []
-        // for each friend, get messages, check there are more than 10 messages and the last message is older than 30 days
+
         for (const friend of friends) {
             const messages = await friend.fetchMessages({ limit: 50 })
             if (messages.length < 10) {
@@ -39,14 +37,17 @@ export class FriendsKeeperPlugin implements CommanderPlugin {
 
             if (daysDiff > 1) {
                 // console.log(`Friend ${friend.name} (having ${messages.length}) has not been active for ${daysDiff} days`)
-                unactiveFriendsChats.push(friend)
+                unactiveFriendsChats.push({chat: friend, messages: messages})
+                // update lastContacted in db only if the friend is already in the db
+                if (db.get('friends').has(friend.id.user).value()) {
+                    db.get('friends').set(`${friend.id.user}.lastContacted`, lastMessage.timestamp * 1000).write()
+                }
             }
         }
 
-
-        if (unactiveFriendsChats.length > 0) {
+        if (unactiveFriendsChats.length) {
             // format message containing all unactive friends numbered from 1 (for later ref), with name, lastMessage, contacted X days ago
-            const message = unactiveFriendsChats.map((c, i) => `${i + 1}.\n ${c.name} \n contacted ${differenceInDays(Date.now(), c.lastMessage.timestamp * 1000)} days ago`).join('\n\n')
+            const message = unactiveFriendsChats.map(({chat:c, messages}, i) => `${i + 1}.\n ${c.name} \n contacted ${differenceInDays(Date.now(), messages.at(-1).timestamp * 1000)} days ago`).join('\n\n')
             this.commandChat.sendMessage(
                 `TextCommander💡: Unactive friends
                 
@@ -65,14 +66,18 @@ export class FriendsKeeperPlugin implements CommanderPlugin {
         // for every tracked friend, send a predefined message
         const trackedFriends = db.get('friends').value()
         for (const friend of trackedFriends) {
+            // check last contacted more than 30 days ago
+            if (differenceInDays(Date.now(), friend.lastContacted) < 30) {
+                continue
+            }
             const chat = await this.client.getChatById(friend.id)
             chat.sendMessage(`Hey ${friend.name}, it's been a while since we last talked. How are you doing?`)
         }
     }
+
     async init(client: Client, commandChat: Chat) {
         this.client = client
         this.commandChat = commandChat
-
 
         // run now and every day same time
         this.checkForUnactiveFriends()
@@ -86,8 +91,6 @@ export class FriendsKeeperPlugin implements CommanderPlugin {
         schedule.scheduleJob(rule, async () => {
             await this.checkForUnactiveFriends()
         })
-
-
     }
 
     async onCommand(command: string) {
@@ -98,14 +101,16 @@ export class FriendsKeeperPlugin implements CommanderPlugin {
             if (friendsToAdd.length > 0) {
                 // add friends to the db if they are not already there
                 friendsToAdd.forEach(f => {
-                    if (!db.get('friends').has(f.id._serialized).value()) {
-                        db.get('friends').set(f.id.user, { name: f.name, added: Date.now(), chatId: f.id }).write()
+                    if (!db.get('friends').has(f.chat.id._serialized).value()) {
+                        db.get('friends').set(f.chat.id.user, { name: f.chat.name, added: Date.now(), chatId: f.chat.id, lastContacted: Date.now()})
+                        .write()
                     }
                 })
 
-                this.commandChat.sendMessage(`TextCommander💡: Added ${friendsToAdd.map(f => f.name).join(', ')} to your keep-in-touch circle.`)
+                this.commandChat.sendMessage(`TextCommander💡: Added ${friendsToAdd.map(f => f.chat.name).join(', ')} to your keep-in-touch circle.`)
             }
             this.lastUnactiveFriendsChats = null
+            this.reachOutToUnactiveFriends()
         }
     }
     async onMessage(msg: Message) {
