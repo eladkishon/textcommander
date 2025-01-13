@@ -29,7 +29,7 @@ export class TextCommanderBus {
 
 
     async start() {
-        console.log('Initilizing.')
+        console.log('Initializing.')
 
         this.client.on('qr', qr => {
             qrcode.generate(qr, { small: true });
@@ -56,6 +56,7 @@ export class TextCommanderBus {
             await Promise.all(this.plugins.map(p => p.onCall(c)))
         })
 
+        console.log('Initializing client.')
         this.client.initialize()
 
 

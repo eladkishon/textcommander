@@ -1,120 +1,154 @@
-import { Client, Message, Call, Chat } from "whatsapp-web.js";
-import { CommanderPlugin } from "../types";
-import schedule = require('node-schedule');
-import { differenceInDays, format } from "date-fns";
-import FileSync from 'lowdb/adapters/FileSync';
-import low from 'lowdb';
-const adapter = new FileSync('data/friendskeeper.json')
-const db = low(adapter)
+import { Client, Message, Chat, Contact } from "whatsapp-web.js";
+import schedule from "node-schedule";
+import { differenceInDays } from "date-fns";
+import FileSync from "lowdb/adapters/FileSync";
+import low from "lowdb";
 
-const defaultData = { friends: {} }
-db.defaults(defaultData).write()
+const adapter = new FileSync("data/friendskeeper.json");
+const db = low(adapter);
+db.defaults({ friends: {} }).write();
 
-export class FriendsKeeperPlugin implements CommanderPlugin {
+type TrackedFriend = {
+    name: string;
+    chatId: {
+        user: string;
+        server: string;
+        _serialized: string;
+    };
+    lastContacted: number;
+}
 
+const CONTACT_INACTIVE_THRESHOLD_IN_DAYS = 30;
+
+export class FriendsKeeperPlugin {
     client: Client;
     commandChat: Chat;
-    waitingForReply: boolean;
-    lastUnactiveFriendsChats: {chat: Chat, messages: Message[]}[]
-    db: any;
+    lastUnactiveFriendsChats: { chat: Chat, lastMessage: Message }[] = [];
+    db: low.LowdbSync<{ friends: { [key: string]: TrackedFriend } }>;
 
+    constructor() {
+        this.db = db;
+    }
 
-    private async checkForUnactiveFriends() {
-        const chats = await this.client.getChats()
-
-        const friends = chats.filter(c => !c.isGroup)
-        const unactiveFriendsChats = []
+    async checkForInactiveFriends() {
+        const chats = await this.client.getChats();
+        const friends = chats.filter((chat) => !chat.isGroup);
+        const inactiveFriends = [];
 
         for (const friend of friends) {
-            const messages = await friend.fetchMessages({ limit: 50 })
-            if (messages.length < 10) {
-                continue
-            }
+            const messages = await friend.fetchMessages({ limit: 50 });
+            if (!messages.length) continue;
 
-            const lastMessage = messages.at(-1)
+            const lastMessageDate = new Date(messages.at(-1).timestamp * 1000);
+            const daysSinceLastMessage = differenceInDays(
+                new Date(),
+                lastMessageDate
+            );
 
-            const daysDiff = differenceInDays(Date.now(), lastMessage.timestamp * 1000)
+            if (daysSinceLastMessage > CONTACT_INACTIVE_THRESHOLD_IN_DAYS) {
+                inactiveFriends.push({ chat: friend, lastMessageDate, daysSinceLastMessage });
 
-            if (daysDiff > 1) {
-                // console.log(`Friend ${friend.name} (having ${messages.length}) has not been active for ${daysDiff} days`)
-                unactiveFriendsChats.push({chat: friend, messages: messages})
-                // update lastContacted in db only if the friend is already in the db
-                if (db.get('friends').has(friend.id.user).value()) {
-                    db.get('friends').set(`${friend.id.user}.lastContacted`, lastMessage.timestamp * 1000).write()
+                const friendId = friend.id._serialized;
+                if (db.get("friends").has(friendId).value()) {
+                    db.get("friends").set(`${friendId}.lastContacted`, lastMessageDate.toISOString()).write();
                 }
             }
         }
 
-        if (unactiveFriendsChats.length) {
-            // format message containing all unactive friends numbered from 1 (for later ref), with name, lastMessage, contacted X days ago
-            const message = unactiveFriendsChats.map(({chat:c, messages}, i) => `${i + 1}.\n ${c.name} \n contacted ${differenceInDays(Date.now(), messages.at(-1).timestamp * 1000)} days ago`).join('\n\n')
-            this.commandChat.sendMessage(
-                `TextCommander💡: Unactive friends
-                
-                ${message}
-                Reply with the number of the friend you want to add to your keep-in-touch circle, you can specifiy multiple numbers separated by new lines.
-                `)
-            this.lastUnactiveFriendsChats = unactiveFriendsChats
-            this.commandChat.markUnread()
+        if (inactiveFriends.length) {
+            const message = inactiveFriends
+                .map(
+                    (f, index) =>
+                        `${index + 1}. ${f.chat.name}\nLast message: ${f.daysSinceLastMessage} days ago.`
+                )
+                .join("\n\n");
+
+            await this.commandChat.sendMessage(
+                `TextCommander💡: Inactive Friends\n\n${message}\n\nReply with the numbers of the friends to add to your keep-in-touch circle (separated by commas).`
+            );
+
+            this.lastUnactiveFriendsChats = inactiveFriends;
         }
-
-
-       await this.reachOutToUnactiveFriends()
-
     }
-    async reachOutToUnactiveFriends() {
-        // for every tracked friend, send a predefined message
-        const trackedFriends = db.get('friends').value()
-        for (const friend of trackedFriends) {
-            // check last contacted more than 30 days ago
-            if (differenceInDays(Date.now(), friend.lastContacted) < 30) {
-                continue
+
+    async reachOutToTrackedFriends() {
+
+        const chats = await this.client.getChats();
+        const trackedFriends = db.get("friends").value() as { [key: string]: TrackedFriend }
+        const trackedFriendsChats = Object.values(trackedFriends).map((friend) => chats.find((chat) => chat.id.user === friend.chatId.user));
+
+        for (const trackedFriendChat of trackedFriendsChats) {
+            const friendData = trackedFriends[trackedFriendChat.id.user];
+            const lastContactedDate = new Date(friendData.lastContacted);
+
+            const daysSinceLastContact = differenceInDays(
+                new Date(),
+                lastContactedDate
+            );
+
+            if (daysSinceLastContact > CONTACT_INACTIVE_THRESHOLD_IN_DAYS) {
+                await trackedFriendChat.sendMessage(
+                    `Hey ${friendData.name}, it's been a while! How are you doing?`
+                );
             }
-            const chat = await this.client.getChatById(friend.id)
-            chat.sendMessage(`Hey ${friend.name}, it's been a while since we last talked. How are you doing?`)
         }
     }
 
     async init(client: Client, commandChat: Chat) {
-        this.client = client
-        this.commandChat = commandChat
+        this.client = client;
+        this.commandChat = commandChat;
 
-        // run now and every day same time
-        this.checkForUnactiveFriends()
+        await this.checkForInactiveFriends();
 
-        // check for unactive friends every day using node-schedule
-        const rule = new schedule.RecurrenceRule();
-        const now = new Date();
-        rule.hour = now.getHours()
-        rule.minute = now.getMinutes()
-
-        schedule.scheduleJob(rule, async () => {
-            await this.checkForUnactiveFriends()
-        })
+        schedule.scheduleJob("0 0 * * *", async () => {
+            await this.checkForInactiveFriends();
+            await this.reachOutToTrackedFriends();
+        });
     }
 
-    async onCommand(command: string) {
-        if (this.lastUnactiveFriendsChats) {
-            const selectedFriends = command.split('\n').map(n => parseInt(n))
-            const friendsToAdd = this.lastUnactiveFriendsChats.filter((c, i) => selectedFriends.includes(i + 1))
+    async onCommand(command) {
 
-            if (friendsToAdd.length > 0) {
-                // add friends to the db if they are not already there
-                friendsToAdd.forEach(f => {
-                    if (!db.get('friends').has(f.chat.id._serialized).value()) {
-                        db.get('friends').set(f.chat.id.user, { name: f.chat.name, added: Date.now(), chatId: f.chat.id, lastContacted: Date.now()})
-                        .write()
-                    }
-                })
-
-                this.commandChat.sendMessage(`TextCommander💡: Added ${friendsToAdd.map(f => f.chat.name).join(', ')} to your keep-in-touch circle.`)
-            }
-            this.lastUnactiveFriendsChats = null
-            this.reachOutToUnactiveFriends()
+        if (command === 'friends') {
+            await this.checkForInactiveFriends();
+            return;
         }
+
+        if (!this.lastUnactiveFriendsChats.length) return;
+
+        const selectedIndexes = command
+            .split(",")
+            .map((n: string) => parseInt(n.trim(), 10) - 1)
+            .filter((i: number) => !isNaN(i) && i >= 0 && i < this.lastUnactiveFriendsChats.length);
+
+        const friendsToAdd: { chat: Chat, lastMessage: Message }[] = selectedIndexes.map((i: number) => this.lastUnactiveFriendsChats[i]);
+
+        for (const friend of friendsToAdd) {
+            const friendId = friend.chat.id.user;
+            if (!db.get("friends").has(friendId).value()) {
+                const messages = await friend.chat.fetchMessages({ limit: 10 });
+                const lastContactedAt = messages.length ? new Date(messages.at(-1).timestamp * 1000).toISOString() : '';
+                db.get("friends")
+                    .set(friendId, {
+                        name: friend.chat.name,
+                        chatId: friend.chat.id,
+                        lastContacted: lastContactedAt
+                    })
+                    .write();
+            }
+        }
+
+
+        await this.commandChat.sendMessage(
+            `TextCommander💡: Added ${friendsToAdd
+                .map((f: { chat: { name: string } }) => f.chat.name)
+                .join(", ")} to your keep-in-touch circle.`
+        );
+
+        await this.reachOutToTrackedFriends()
+
+        this.lastUnactiveFriendsChats = [];
     }
-    async onMessage(msg: Message) {
-    }
-    async onCall(call: Call) {
-    }
+
+    async onMessage() { }
+    async onCall() { }
 }
