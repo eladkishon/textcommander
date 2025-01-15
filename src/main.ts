@@ -1,34 +1,29 @@
+import dotenv from 'dotenv'
+dotenv.config()
+
+
 import { TextCommanderBus } from "./commander"
-import { EmergencyPlugin } from "./plugins/emergency"
 import { FriendsKeeperPlugin } from "./plugins/friendskeeper"
 import { ShortcutsPlugin } from "./plugins/shortcuts"
-import { getWhatsappClient } from "./thirdparty/whatsappclient"
-import express from 'express'
-const client = getWhatsappClient()
-const bus = new TextCommanderBus(client)
-bus.add_plugin(new EmergencyPlugin())
-// bus.add_plugin(new ChatCleanerPlugin())
-bus.add_plugin(new FriendsKeeperPlugin())
-bus.add_plugin(new ShortcutsPlugin())
-bus.start()
-    .then()
-    .catch(console.error)
+import { getWhatsappClient } from "./whatsappclient"
 
-const app = express()
-const port = (process.env.PORT) || 3000
+import './errors'
+import './server'
 
-app.get('/health', (req, res) => {
-    res.send('OK')
-})
 
-app.listen(Number(port), '0.0.0.0', () => {
-    console.log(`Server is running at http://0.0.0.0:${port}`)
-})
+async function main() {
+    
+    try {
+    const client = await getWhatsappClient()
+    const bus = new TextCommanderBus(client)
+    bus.add_plugin(new FriendsKeeperPlugin())
+    bus.add_plugin(new ShortcutsPlugin())
+    await bus.start()
+    } catch (e) {
+        console.error(e)
+        process.exit(1)
+    }
+}
 
-process.on('uncaughtException', (err) => {
-    console.error('Uncaught exception:', err)
-})
+main()
 
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled rejection:', reason, promise)
-})

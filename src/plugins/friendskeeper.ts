@@ -72,7 +72,6 @@ export class FriendsKeeperPlugin {
     }
 
     async reachOutToTrackedFriends() {
-
         const chats = await this.client.getChats();
         const trackedFriends = db.get("friends").value() as { [key: string]: TrackedFriend }
         const trackedFriendsChats = Object.values(trackedFriends).map((friend) => chats.find((chat) => chat.id.user === friend.chatId.user));

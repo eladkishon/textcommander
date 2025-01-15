@@ -46,11 +46,6 @@ COPY --from=builder /app/pnpm-lock.yaml ./
 COPY --from=builder /app/node_modules ./node_modules
 RUN mkdir -p data
 
-# Create a user to run the app
-RUN useradd -m appuser && chown -R appuser /app
-
-# Switch to the appuser
-USER appuser
 
 # Set the default command
 CMD ["node", "dist/main.js"]
