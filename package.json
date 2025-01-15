@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "src/main.ts",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
+    "dev": "ts-node src/main.ts",
     "build": "tsc --outDir dist",
     "start": "node dist/main.js",
     "test": "ts-node test.ts"
