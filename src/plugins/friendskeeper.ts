@@ -103,6 +103,8 @@ export class FriendsKeeperPlugin {
             await this.checkForInactiveFriends();
             await this.reachOutToTrackedFriends();
         });
+
+        console.log("FriendsKeeperPlugin initialized")
     }
 
     async onCommand(command) {

@@ -6,7 +6,10 @@ import { DATA_FOLDER } from '../fs';
 export const getWeatherScreenshot = async () => {
     console.log('Getting weather screenshot')
 
-    const browser = await puppeteer.launch(); // Run browser in non-headless mode
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    }); // Run browser in non-headless mode
     const weatherPageUrl = 'https://www.google.com/search?q=weather in celsius'; // Example URL for New York
     const page = await browser.newPage();
 

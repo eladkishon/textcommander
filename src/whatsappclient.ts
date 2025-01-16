@@ -6,6 +6,8 @@ import { DATA_FOLDER } from "./fs";
 export const getWhatsappClient = async () => {
     let client: Client;
 
+    console.log("Getting WhatsApp client", process.env.WHATSAPP_AUTH || 'local')
+
     if (process.env.WHATSAPP_AUTH === 'remote') {
         await mongoose.connect(process.env.MONGODB_URI)
         console.log("Connected to MongoDB")

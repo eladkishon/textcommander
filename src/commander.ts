@@ -29,7 +29,6 @@ export class TextCommanderBus {
 
 
     async start() {
-        console.log('Initializing.')
 
         this.client.on('qr', qr => {
             qrcode.generate(qr, { small: true });
