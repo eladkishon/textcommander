@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "ts-node src/main.ts",
     "build": "tsc --outDir dist",
+    "build-image": "docker build -t textcommander:latest . && docker tag textcommander ghcr.io/eladkishon/textcommander:latest",
     "start": "node dist/main.js",
     "test": "ts-node test.ts"
   },
