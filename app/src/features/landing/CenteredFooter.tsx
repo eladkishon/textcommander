@@ -31,7 +31,7 @@ export const CenteredFooter = (props: {
                 className="text-blue-500 hover:text-blue-600"
                 href="https://creativedesignsguru.com"
               >
-                Creative Designs Guru
+                TextCommander
               </a>
             ),
           })}
