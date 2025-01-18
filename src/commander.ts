@@ -59,23 +59,39 @@ export class TextCommanderBus {
         this.client.initialize()
 
 
-        return new Promise<void>((resolve) => {
+        return new Promise<void>((resolve, reject) => {
             this.client.once('ready', async () => {
-                console.log('Client is ready.')
-                this.botChat = await this.getTextCommanderChat()
+                console.log('Client is ready.');
 
-                if (!this.botChat) {
-                    const res = await this.client.createGroup('TextCommander', [])
-                    this.botChat = await this.getTextCommanderChat()
+                try {
+                    // Ensure botChat is initialized, retrying if necessary
+                    this.botChat = await retryOperation(async () => {
+                        let chat = await this.getTextCommanderChat();
+                        if (!chat) {
+                            await this.client.createGroup('TextCommander', []);
+                            chat = await this.getTextCommanderChat();
+                        }
+                        if (!chat) {
+                            throw new Error('Could not create or find TextCommander group.');
+                        }
+                        return chat;
+                    }, 5); // Retry up to 5 times
+            
+                    // Ensure all plugins are initialized, retrying each plugin if needed
+                    await Promise.all(
+                        this.plugins.map(p =>
+                            retryOperation(
+                                async () => await p.init(this.client, this.botChat),
+                                3 // Retry each plugin up to 3 times
+                            )
+                        )
+                    );
+            
+                    resolve();
+                } catch (err) {
+                    console.error('Initialization failed:', err.message);
+                    reject(err); // Reject if retries fail after all attempts
                 }
-
-                if (!this.botChat) {
-                    console.error('Could not create or find TextCommander group.')
-                    return
-                }
-
-                await Promise.all(this.plugins.map(p => p.init(this.client, this.botChat)))
-                resolve()
             })
         })
     }
@@ -84,3 +100,19 @@ export class TextCommanderBus {
 
 
 
+const retryOperation = async (operation, maxRetries, delay = 500) => {
+    let attempt = 0;
+
+    while (attempt < maxRetries) {
+        try {
+            return await operation();
+        } catch (err) {
+            attempt++;
+            if (attempt >= maxRetries) {
+                throw err; // Rethrow if max retries exceeded
+            }
+            console.warn(`Retrying operation (attempt ${attempt}) due to error:`, err.message);
+            await new Promise(res => setTimeout(res, delay * Math.pow(2, attempt))); // Exponential backoff
+        }
+    }
+};
