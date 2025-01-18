@@ -47,19 +47,19 @@ export default function middleware(
         });
       }
 
-      if (
-        authObj.userId
-        && !authObj.orgId
-        && req.nextUrl.pathname.includes('/dashboard')
-        && !req.nextUrl.pathname.endsWith('/organization-selection')
-      ) {
-        const orgSelection = new URL(
-          '/onboarding/organization-selection',
-          req.url,
-        );
+      // if (
+      //   authObj.userId
+      //   && !authObj.orgId
+      //   && req.nextUrl.pathname.includes('/dashboard')
+      //   // && !req.nextUrl.pathname.endsWith('/organization-selection')
+      // ) {
+      //   const orgSelection = new URL(
+      //     '/onboarding/organization-selection',
+      //     req.url,
+      //   );
 
-        return NextResponse.redirect(orgSelection);
-      }
+      //   return NextResponse.redirect(orgSelection);
+      // }
 
       return intlMiddleware(req);
     })(request, event);

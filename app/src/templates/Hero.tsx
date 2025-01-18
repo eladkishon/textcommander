@@ -25,7 +25,7 @@ export const Hero = () => {
           <>
             <a
               className={buttonVariants({ size: 'lg' })}
-              href="https://github.com/ixartz/SaaS-Boilerplate"
+              href="https://pro-demo.nextjs-boilerplate.com/sign-up"
             >
               {t('primary_button')}
             </a>
