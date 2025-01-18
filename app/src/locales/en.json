@@ -1,6 +1,6 @@
 {
   "Index": {
-    "meta_title": "SaaS Template - The perfect SaaS template to build and scale your business with ease.",
+    "meta_title": "TextCommander",
     "meta_description": "A free and open-source landing page template for your SaaS business, built with React, TypeScript, Shadcn UI, and Tailwind CSS."
   },
   "Navbar": {
@@ -13,9 +13,8 @@
     "company": "Company"
   },
   "Hero": {
-    "follow_twitter": "Follow @Ixartz on Twitter",
-    "title": "The perfect <important>SaaS template</important> to build and scale your business with ease.",
-    "description": "A free and open-source landing page template for your SaaS business, built with React, TypeScript, Shadcn UI, and Tailwind CSS.",
+    "title": "Take  <important>Command</important> of your Messaging",
+    "description": "Stay organized, maintain relationships, and ensure peace of mind for your loved ones.",
     "primary_button": "Get Started",
     "secondary_button": "Star on GitHub"
   },

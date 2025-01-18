@@ -27,14 +27,14 @@ const IndexPage = (props: { params: { locale: string } }) => {
 
   return (
     <>
-      <DemoBanner />
+      {/* <DemoBanner /> */}
       <Navbar />
       <Hero />
-      <Sponsors />
-      <Features />
-      <Pricing />
-      <FAQ />
-      <CTA />
+      {/* <Sponsors /> */}
+      {/* <Features /> */}
+      {/* <Pricing /> */}
+      {/* <FAQ /> */}
+      {/* <CTA /> */}
       <Footer />
     </>
   );
