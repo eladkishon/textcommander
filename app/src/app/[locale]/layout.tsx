@@ -60,7 +60,7 @@ export default function RootLayout(props: {
         >
           {props.children}
 
-          <DemoBadge />
+          {/* <DemoBadge /> */}
         </NextIntlClientProvider>
       </body>
     </html>
