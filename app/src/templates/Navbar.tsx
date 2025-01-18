@@ -51,6 +51,7 @@ export const Navbar = () => {
         {/* <li>
           <Link href="/sign-up">{t('company')}</Link>
         </li> */}
+        <></>
       </CenteredMenu>
     </Section>
   );
