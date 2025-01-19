@@ -3,8 +3,10 @@ import { useTranslations } from 'next-intl';
 
 import { TitleBar } from '@/features/dashboard/TitleBar';
 import { getI18nPath } from '@/utils/Helpers';
+import { DefaultParams } from '@/types/Params';
 
-const UserProfilePage = (props: { params: { locale: string } }) => {
+const UserProfilePage = async (props: { params: DefaultParams }) => {
+  const params = await props.params;
   const t = useTranslations('UserProfile');
 
   return (
@@ -16,7 +18,7 @@ const UserProfilePage = (props: { params: { locale: string } }) => {
 
       <UserProfile
         routing="path"
-        path={getI18nPath('/dashboard/user-profile', props.params.locale)}
+        path={getI18nPath('/dashboard/user-profile', params.locale)}
         appearance={{
           elements: {
             rootBox: 'w-full',
