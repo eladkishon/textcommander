@@ -1,39 +1,39 @@
-import '@/styles/global.css';
+import "@/styles/global.css";
+import type { Metadata } from "next";
+import { NextIntlClientProvider, useMessages } from "next-intl";
+import { unstable_setRequestLocale } from "next-intl/server";
+import ClientQueryProvider from "@/components/ClientQueryProvider";
 
-import type { Metadata } from 'next';
-import { NextIntlClientProvider, useMessages } from 'next-intl';
-import { unstable_setRequestLocale } from 'next-intl/server';
-
-import { DemoBadge } from '@/components/DemoBadge';
-import { AllLocales } from '@/utils/AppConfig';
+import { DemoBadge } from "@/components/DemoBadge";
+import { AllLocales } from "@/utils/AppConfig";
 
 export const metadata: Metadata = {
   icons: [
     {
-      rel: 'apple-touch-icon',
-      url: '/apple-touch-icon.png',
+      rel: "apple-touch-icon",
+      url: "/apple-touch-icon.png",
     },
     {
-      rel: 'icon',
-      type: 'image/png',
-      sizes: '32x32',
-      url: '/favicon-32x32.png',
+      rel: "icon",
+      type: "image/png",
+      sizes: "32x32",
+      url: "/favicon-32x32.png",
     },
     {
-      rel: 'icon',
-      type: 'image/png',
-      sizes: '16x16',
-      url: '/favicon-16x16.png',
+      rel: "icon",
+      type: "image/png",
+      sizes: "16x16",
+      url: "/favicon-16x16.png",
     },
     {
-      rel: 'icon',
-      url: '/favicon.ico',
+      rel: "icon",
+      url: "/favicon.ico",
     },
   ],
 };
 
 export function generateStaticParams() {
-  return AllLocales.map(locale => ({ locale }));
+  return AllLocales.map((locale) => ({ locale }));
 }
 
 export default function RootLayout(props: {
@@ -52,14 +52,17 @@ export default function RootLayout(props: {
   // which dynamically adds a `style` attribute to the body tag.
   return (
     <html lang={props.params.locale} suppressHydrationWarning>
-      <body className="bg-background text-foreground antialiased" suppressHydrationWarning>
+      <body
+        className="bg-background text-foreground antialiased"
+        suppressHydrationWarning
+      >
         {/* PRO: Dark mode support for Shadcn UI */}
+
         <NextIntlClientProvider
           locale={props.params.locale}
           messages={messages}
         >
-          {props.children}
-
+          <ClientQueryProvider>{props.children}</ClientQueryProvider>
           {/* <DemoBadge /> */}
         </NextIntlClientProvider>
       </body>
