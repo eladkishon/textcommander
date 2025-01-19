@@ -7,17 +7,17 @@ const config = {
   theme: {
     extend: {
       colors: {
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
+        border: '#51355A',
+        input: '#C7B8EA',
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
+          DEFAULT: '#9E2B25',
           foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
+          DEFAULT: '#ACF39D',
           foreground: 'hsl(var(--secondary-foreground))',
         },
         destructive: {
@@ -29,7 +29,7 @@ const config = {
           foreground: 'hsl(var(--muted-foreground))',
         },
         accent: {
-          DEFAULT: 'hsl(var(--accent))',
+          DEFAULT: '#23B5D3',
           foreground: 'hsl(var(--accent-foreground))',
         },
         popover: {
