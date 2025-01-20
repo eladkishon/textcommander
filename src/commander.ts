@@ -1,7 +1,7 @@
 import { Call, Chat, Client, LocalAuth, Message } from "whatsapp-web.js";
 import * as qrcode from "qrcode-terminal";
 import { CommanderPlugin } from "./types";
-import QRCode from "qrcode";
+import { supabase } from "./main";
 
 // Emergency
 // Group helper
@@ -10,10 +10,12 @@ export class TextCommanderBus {
   plugins: CommanderPlugin[];
   client: Client;
   botChat: Chat;
+  userId: string;
 
-  constructor(client: Client) {
+  constructor(client: Client, userId: string) {
     this.client = client;
     this.plugins = [];
+    this.userId = userId;
   }
 
   add_plugin(plugin: CommanderPlugin) {
@@ -29,19 +31,10 @@ export class TextCommanderBus {
   }
 
   async start() {
-    this.client.on("qr", (qr) => {
-      QRCode.toDataURL(qr, (err, url) => {
-        if (err) {
-          console.error("Failed to generate QR code", err);
-          return;
-        }
+    // this.client.on("qr", (qr) => {
+    //   qrcode.generate(qr, { small: true });
 
-        // Store the QR code data URL in memory
-        process.env.QR_CODE = url;
-        console.log("QR Code Data URL:", url);
-      });
-      qrcode.generate(qr, { small: true });
-    });
+    // });
 
     this.client.on("message_create", async (m) => {
       const chat = await m.getChat();
@@ -70,6 +63,16 @@ export class TextCommanderBus {
     return new Promise<void>((resolve, reject) => {
       this.client.once("ready", async () => {
         console.log("Client is ready.");
+
+        const { data, error } = await supabase
+          .from("user_config")
+          .upsert({ userId: this.userId, is_initialized: true });
+
+        if (error) {
+          console.error("Error with upsert:", error);
+        } else {
+          console.log("Upsert successful:", data);
+        }
 
         try {
           // Ensure botChat is initialized, retrying if necessary

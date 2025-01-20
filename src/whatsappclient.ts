@@ -47,6 +47,7 @@ export const getWhatsappClient = async (userId: string) => {
         args: ["--no-sandbox", "--disable-setuid-sandbox"],
       },
     });
+    
   }
 
   return client;
