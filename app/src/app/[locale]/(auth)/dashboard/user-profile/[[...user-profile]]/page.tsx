@@ -1,13 +1,13 @@
 import { UserProfile } from '@clerk/nextjs';
-import { useTranslations } from 'next-intl';
 
 import { TitleBar } from '@/features/dashboard/TitleBar';
 import { getI18nPath } from '@/utils/Helpers';
 import { DefaultParams } from '@/types/Params';
+import { getTranslations } from 'next-intl/server';
 
 const UserProfilePage = async (props: { params: DefaultParams }) => {
   const params = await props.params;
-  const t = useTranslations('UserProfile');
+  const t = await getTranslations('UserProfile');
 
   return (
     <>
