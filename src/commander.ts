@@ -1,8 +1,9 @@
 import { Call, Chat, Client, LocalAuth, Message } from "whatsapp-web.js";
 import * as qrcode from "qrcode-terminal";
 import { CommanderPlugin } from "./types";
-import { supabase } from "./main";
-
+import { db } from "./db/index";
+import { usersConfigTable, InsertUserConfig } from "./db/schema";
+import { qrCache } from "./server";
 // Emergency
 // Group helper
 // Auto Replyer
@@ -31,11 +32,6 @@ export class TextCommanderBus {
   }
 
   async start() {
-    // this.client.on("qr", (qr) => {
-    //   qrcode.generate(qr, { small: true });
-
-    // });
-
     this.client.on("message_create", async (m) => {
       const chat = await m.getChat();
       if (chat.isGroup && chat.name === "TextCommander") {
@@ -59,20 +55,15 @@ export class TextCommanderBus {
 
     console.log("Initializing client.");
     this.client.initialize();
+    console.log("Initializing client2.");
 
     return new Promise<void>((resolve, reject) => {
       this.client.once("ready", async () => {
         console.log("Client is ready.");
 
-        const { data, error } = await supabase
-          .from("user_config")
-          .upsert({ userId: this.userId, is_initialized: true });
-
-        if (error) {
-          console.error("Error with upsert:", error);
-        } else {
-          console.log("Upsert successful:", data);
-        }
+        await db
+          .insert(usersConfigTable)
+          .values({ userId: this.userId, is_initialized: true });
 
         try {
           // Ensure botChat is initialized, retrying if necessary
