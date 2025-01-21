@@ -23,7 +23,7 @@ export const usePollInitializationStatus = (userId: string | undefined) => {
       return () => clearInterval(intervalId); // Cleanup on unmount
     };
 
-    pollStatus();
+     pollStatus();
   }, [userId]);
 
   return isInitialized;
