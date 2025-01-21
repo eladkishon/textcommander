@@ -5,9 +5,10 @@ import { useUser } from "@clerk/nextjs";
 import { TitleBar } from "@/features/dashboard/TitleBar";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
-
+// import { db } from "../../../../libs/DB";
+import { eq } from "drizzle-orm";
 /** TODO: onClick connect - react mutation '/bots':
  * on success - start polling '/bots/:userId/qr-code' , display qr code when available
  * start polling isInitialized from userConfig in superbase // real time updates (subsciption do table change)
@@ -45,8 +46,11 @@ const DashboardIndexPage = () => {
   const t = useTranslations("DashboardIndex");
   const { isSignedIn, user } = useUser();
   const [isPollingQrEnabled, setIsPollingQrEnabled] = useState(false);
+  const [isBotInitialized, setIsBotInitialized] = useState(false);
 
-  console.log("user", user);
+  if (!isSignedIn) {
+    return null;
+  }
 
   const startBotMutate = useMutation({
     mutationFn: (userId: string) => startBot(userId),
@@ -55,9 +59,27 @@ const DashboardIndexPage = () => {
     },
   });
 
-  if (!isSignedIn) {
-    return null;
-  }
+  // Poll the database for 'is_initialized' field for the user
+  // useEffect(() => {
+  //   if (!user) return;
+
+  //   const pollInitializationStatus = async () => {
+  //     const intervalId = setInterval(async () => {
+  //       const userConfig = await db.query.usersConfigTable.findFirst({
+  //         where: (usersConfig) => eq(usersConfig.user_id, user.id),
+  //       });
+
+  //       if (userConfig && userConfig.is_initialized) {
+  //         setIsBotInitialized(true); // Update the state when initialized
+  //         clearInterval(intervalId); // Stop polling once initialized
+  //       }
+  //     }, 5000); // Poll every 5 seconds
+
+  //     return () => clearInterval(intervalId); // Clean up polling on component unmount
+  //   };
+
+  //   pollInitializationStatus();
+  // }, [user]);
 
   const {
     isLoading: isQRCodeLoading,
@@ -75,7 +97,7 @@ const DashboardIndexPage = () => {
 
   return (
     <>
-      {isBotAuthenticated ? (
+      {isBotInitialized ? (
         <TitleBar title={t("title_bar")} />
       ) : (
         <div>
@@ -87,16 +109,13 @@ const DashboardIndexPage = () => {
           >
             Connect
           </Button>
+
           {qrCode && (
             <div className="pt-4">
-              <QRCode
-                size={100}
-                // style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                value={qrCode}
-                // viewBox={`0 0 256 256`}
-              />
+              <QRCode size={100} value={qrCode} />
             </div>
           )}
+
           {(isQRCodeLoading || isQRCodeFetching) && <p>Loading QR code...</p>}
         </div>
       )}

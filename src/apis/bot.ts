@@ -9,12 +9,12 @@ async function initBot(userId: string) {
     const client = await getWhatsappClient(userId);
     client.on("qr", (qr) => {
       console.log("QR RECEIVED", qr);
-      qrCache.set(this.userId, qr);
+      qrCache.set(userId, qr);
       console.log("cache", qrCache);
     });
     const bus = new TextCommanderBus(client, userId);
-    bus.add_plugin(new FriendsKeeperPlugin());
-    bus.add_plugin(new ShortcutsPlugin());
+    // bus.add_plugin(new FriendsKeeperPlugin());
+    // bus.add_plugin(new ShortcutsPlugin());
     await bus.start();
   } catch (e) {
     console.error(e);

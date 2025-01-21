@@ -2,7 +2,7 @@ import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/
 
 export const usersConfigTable = pgTable("user_config", {
   id: serial("id").primaryKey(),
-  userId: text("userId").notNull(),
+  user_id: text("user_id").notNull(),
   is_initialized: boolean("is_initialized").notNull(),
 });
 

@@ -2,8 +2,7 @@ import { Call, Chat, Client, LocalAuth, Message } from "whatsapp-web.js";
 import * as qrcode from "qrcode-terminal";
 import { CommanderPlugin } from "./types";
 import { db } from "./db/index";
-import { usersConfigTable, InsertUserConfig } from "./db/schema";
-import { qrCache } from "./server";
+import { usersConfigTable } from "./db/schema";
 // Emergency
 // Group helper
 // Auto Replyer
@@ -53,9 +52,7 @@ export class TextCommanderBus {
       await Promise.all(this.plugins.map((p) => p.onCall(c)));
     });
 
-    console.log("Initializing client.");
     this.client.initialize();
-    console.log("Initializing client2.");
 
     return new Promise<void>((resolve, reject) => {
       this.client.once("ready", async () => {
@@ -63,7 +60,7 @@ export class TextCommanderBus {
 
         await db
           .insert(usersConfigTable)
-          .values({ userId: this.userId, is_initialized: true });
+          .values({ user_id: this.userId, is_initialized: true });
 
         try {
           // Ensure botChat is initialized, retrying if necessary

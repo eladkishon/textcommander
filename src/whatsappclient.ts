@@ -5,7 +5,6 @@ import { DATA_FOLDER } from "./fs";
 
 export const getWhatsappClient = async (userId: string) => {
   let client: Client;
-
   console.log("Getting WhatsApp client", process.env.WHATSAPP_AUTH || "local");
 
   if (process.env.WHATSAPP_AUTH === "remote") {
@@ -42,12 +41,13 @@ export const getWhatsappClient = async (userId: string) => {
     });
   } else {
     client = new Client({
-        authStrategy: new LocalAuth({ clientId: userId }),
-        puppeteer: {
+      authStrategy: new LocalAuth({ clientId: userId }),
+      // authStrategy: new LocalAuth(),
+
+      puppeteer: {
         args: ["--no-sandbox", "--disable-setuid-sandbox"],
       },
     });
-    
   }
 
   return client;
