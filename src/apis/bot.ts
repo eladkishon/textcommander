@@ -10,7 +10,6 @@ async function initBot(userId: string) {
     client.on("qr", (qr) => {
       console.log("QR RECEIVED", qr);
       qrCache.set(userId, qr);
-      console.log("cache", qrCache);
     });
     const bus = new TextCommanderBus(client, userId);
     // bus.add_plugin(new FriendsKeeperPlugin());

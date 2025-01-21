@@ -60,7 +60,8 @@ export class TextCommanderBus {
 
         await db
           .insert(usersConfigTable)
-          .values({ user_id: this.userId, is_initialized: true });
+          .values({ user_id: this.userId, is_initialized: true })
+          .onConflictDoNothing();
 
         try {
           // Ensure botChat is initialized, retrying if necessary
