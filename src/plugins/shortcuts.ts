@@ -1,6 +1,5 @@
 import { Client, Chat, Message, Call, MessageMedia } from "whatsapp-web.js";
 import { CommanderPlugin } from "../types";
-import fs from 'fs';
 import { getWeatherScreenshot } from "../apis/weather_screenshot";
 import path from "path";
 import { DATA_FOLDER } from "../fs";

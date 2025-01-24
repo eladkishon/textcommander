@@ -1,8 +1,9 @@
 import { Call, Chat, Client, LocalAuth, Message } from "whatsapp-web.js";
 import * as qrcode from "qrcode-terminal";
 import { CommanderPlugin } from "./types";
-import { db } from "./db/index";
-import { usersConfigTable } from "./db/schema";
+import { db } from "../app/src/libs/DB";
+import { usersConfigTable } from "../app/src/models/Schema";
+
 // Emergency
 // Group helper
 // Auto Replyer

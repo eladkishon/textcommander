@@ -2,9 +2,7 @@
 import { useTranslations } from "next-intl";
 import { useUser } from "@clerk/nextjs";
 import { TitleBar } from "@/features/dashboard/TitleBar";
-import { usePollInitializationStatus } from "@/hooks/usePollInitializationStatus";
-import AuthenticateBot from "../onboarding/AuthenticateBot/page";
-import ShortcutsConfig from "./featuresConfig/ShortcutsConfig/page";
+import Shortcuts from "./(features)/(shortcuts)";
 /** TODO: onClick connect - react mutation '/bots':
  * on success - start polling '/bots/:userId/qr-code' , display qr code when available
  * start polling isInitialized from userConfig in superbase // real time updates (subsciption do table change)
@@ -20,21 +18,21 @@ const DashboardIndexPage = () => {
     return null;
   }
 
-  const isBotInitialized = usePollInitializationStatus(user.id);
+  // const isBotInitialized = useInitializationStatus(user.id);
 
-  if (isBotInitialized === null) {
-    return <p>Loading...</p>;
-  }
+  // if (isBotInitialized === null) {
+  //   return <p>Loading...</p>;
+  // }
   return (
     <>
-      {isBotInitialized ? (
+      {/* {isBotInitialized && (
         <div>
           <TitleBar title={t("title_bar")} />
-            <ShortcutsConfig />
+          <Shortcuts />
         </div>
-      ) : (
-        <AuthenticateBot userId={user.id} />
-      )}
+      )} */}
+      {/* // : // <AuthenticateBot userId={user.id} /> */}
+      <Shortcuts />
     </>
   );
 };
