@@ -1,12 +1,9 @@
-import { db } from "@/libs/DB";
-import { usersConfigTable, weatherShortcutTable } from "@/models/Schema";
 import { NextRequest } from "next/server";
-import { eq } from "drizzle-orm";
+import { db } from "../../../../../shared/db/db";
+import { weatherShortcutTable } from "../../../../../shared/db/schema";
 
 export async function POST(req: NextRequest) {
   try {
-    // Parse query parameters (shortcut and userId)
-    console.log("url: ", req.url);
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
     console.log(userId);
@@ -40,13 +37,12 @@ export async function POST(req: NextRequest) {
         set: { location: body.location },
       });
 
-
-
     return new Response(
       JSON.stringify({ message: "Shortcut updated successfully" }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
+    console.error(error);
     return new Response(JSON.stringify({ error }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
