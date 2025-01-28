@@ -7,6 +7,7 @@ export const useSaveWeatherShortcut = (userId: string, location: string) => {
 
   const save = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       await axios.post(`/api/shortcuts?userId=${userId}`, {
         location,
