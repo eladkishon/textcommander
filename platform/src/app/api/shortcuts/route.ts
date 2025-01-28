@@ -7,6 +7,7 @@ export async function POST(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
     console.log(userId);
+    console.log("db: ", db);
 
     if (!userId) {
       return new Response(

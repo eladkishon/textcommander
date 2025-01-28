@@ -8,12 +8,12 @@ import { useSaveWeatherShortcut } from "@/hooks/useSaveWeatherShortcut";
 const Shortcuts = () => {
   const [shortcut, setShortcut] = useState("Weather");
   const [weatherLocation, setWeatherLocation] = useState<string>("");
+
   const userId = "user_2roH7uYsYk5m4ORVmNkCw7KLqrh";
   const { save, isLoading, error } = useSaveWeatherShortcut(
     userId,
     weatherLocation
   );
-
   return (
     <div className="w-full flex flex-col border-2 border-gray-200 p-5">
       <div className="flex pb-10 justify-between gap-2">
@@ -32,7 +32,7 @@ const Shortcuts = () => {
           />
         )}
       </div>
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-red-500 text-sm">{error}</p>}
     </div>
   );
 };

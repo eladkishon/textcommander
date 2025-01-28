@@ -1,10 +1,19 @@
-// import { fetchQRCode } from "@/app/api";
-// import { useQuery } from "@tanstack/react-query";
+"use client";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
-// export const useFetchQRCode = (userId: string | undefined, enabled: boolean) => {
-//   return useQuery({
-//     queryKey: ["qr_code", userId],
-//     queryFn: () => fetchQRCode(userId!),
-//     enabled: enabled && !!userId,
-//   });
-// };
+export const useFetchQRCode = (userId: string | undefined) => {
+  return useQuery({
+    queryKey: ["qr_code", userId],
+    queryFn: async () => {
+      if (!userId) {
+        throw new Error("userId is required");
+      }
+
+      const response = await axios.get(`/api/botAuth?userId=${userId}`);
+
+      return response.data.qrCode;
+    },
+    enabled: !!userId,
+  });
+};

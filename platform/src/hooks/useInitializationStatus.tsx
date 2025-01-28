@@ -1,27 +1,19 @@
 "use client";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useEffect, useState } from "react";
 
 export const useInitializationStatus = (userId: string | undefined) => {
-  const [isInitialized, setIsInitialized] = useState<boolean | null>(null);
+  return useQuery({
+    queryKey: ["is_initialized", userId],
+    queryFn: async () => {
+      if (!userId) {
+        throw new Error("userId is required");
+      }
 
-  // useEffect(() => {
-  //   if (!userId) return;
+      const response = await axios.get(`/api/userConfig?userId=${userId}`);
 
-  //   const fetchStatus = async () => {
-  //     try {
-  //       const response = await axios.get(
-  //         `/api/userConfig`
-  //       );
-  //       setIsInitialized(response.data.is_initialized);
-  //     } catch (error) {
-  //       console.error("Failed to fetch initialization status:", error);
-  //     }
-  //   };
-
-  //   fetchStatus();
-  // }, [userId]);
-
-  // return isInitialized;
-  return true;
+      return response.data.is_initialized;
+    },
+    enabled: !!userId,
+  });
 };

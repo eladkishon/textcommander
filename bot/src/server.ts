@@ -7,7 +7,6 @@ import { createClient } from "@supabase/supabase-js";
 
 export const qrCache = new NodeCache({ stdTTL: 200 });
 
-
 const app = express();
 const port = process.env.PORT || 3001;
 app.use(express.json());
@@ -23,7 +22,7 @@ app.get("/bots/:userId/qrcode", (req, res) => {
   const qrCode = qrCache.get(userId);
   // console.log("QR code", qrCode);
   if (qrCode) {
-    res.json({ qrCode });
+    res.status(200).json({ qrCode });
   } else {
     res.status(400).json({ message: "QR code not found." });
   }
@@ -40,7 +39,7 @@ app.post("/bots/:userId", (req, res) => {
       .catch((e) => {
         console.error(e);
       });
-    res.json({ message: "bot is started" }); // Send the QR code data to the frontend
+    res.status(200).json({ message: "bot is started" }); // Send the QR code data to the frontend
   } else {
     res.status(400).json({ message: "bot has not started." }); // Error message if QR code not available
   }
