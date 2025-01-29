@@ -9,7 +9,8 @@ import { use, useState } from "react";
 import { useFetchQRCode } from "@/hooks/useFetchQRCode";
 import { useConnectToBot } from "@/hooks/useConnectBot";
 import { useQueryClient } from "@tanstack/react-query";
-import { useInitializationStatus } from "@/hooks/useInitializationStatus";
+import useBotInitializationStatus from "@/hooks/useInitializationStatus";
+import AuthenticateBot from "./AuthenticateBot";
 
 /** TODO: onClick connect - react mutation '/bots':
  * on success - start polling '/bots/:userId/qr-code' , display qr code when available
@@ -26,26 +27,9 @@ const DashboardIndexPage = () => {
     return null;
   }
 
-  const queryClient = useQueryClient();
+  const isBotInitialized = useBotInitializationStatus(user.id);
 
-  console.log(user.id);
 
-  const { data: qrCode, isLoading: isQrCodeLoading } = useFetchQRCode(user.id);
-
-  const connectMutation = useConnectToBot(user.id, () => {
-    queryClient.invalidateQueries({ queryKey: ["qr_code", user.id] });
-  });
-
-  // Connect to the bot when button is clicked
-  const handleConnect = () => {
-    connectMutation.mutate();
-  };
-
-  const isBotInitialized = true; //useInitializationStatus(user.id);
-
-  if (isBotInitialized === null) {
-    return <p>Loading...</p>;
-  }
   return (
     <div className="h-screen">
       {isBotInitialized ? (
@@ -54,18 +38,7 @@ const DashboardIndexPage = () => {
           <Shortcuts />
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center gap-8">
-          <p>Connect our bot to your whatsapp</p>
-          <Button onClick={handleConnect}>connect</Button>
-          {connectMutation.isError && (
-            <p className="text-red-500 text-sm">{connectMutation.error}</p>
-          )}
-          {qrCode && (
-            <div className="pt-4">
-              <QRCode size={100} value={qrCode} />
-            </div>
-          )}
-        </div>
+        <AuthenticateBot userId={user.id} />
       )}
     </div>
   );

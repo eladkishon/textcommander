@@ -10,9 +10,9 @@ let drizzle;
 console.log(process.env.DATABASE_URL);
 client = new Client({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  // ssl: {
+  //   rejectUnauthorized: false,
+  // },
 });
 await client
   .connect()

@@ -1,6 +1,8 @@
 import { Call, Chat, Client, LocalAuth, Message } from "whatsapp-web.js";
 import * as qrcode from "qrcode-terminal";
 import { CommanderPlugin } from "./types";
+import { setupDatabase } from "./db";
+import { userConfigTable } from "../../shared/db/schema";
 // import { setupDatabase } from "./db";
 // import { userConfigTable } from "../../shared/db/schema";
 
@@ -58,11 +60,11 @@ export class TextCommanderBus {
     return new Promise<void>((resolve, reject) => {
       this.client.once("ready", async () => {
         console.log("Client is ready.");
-        // const db = await setupDatabase();
-        // await db
-        //   .insert(userConfigTable)
-        //   .values({ user_id: this.userId, is_initialized: true })
-        //   .onConflictDoNothing();
+        const db = await setupDatabase();
+        await db
+          .insert(userConfigTable)
+          .values({ user_id: this.userId, is_initialized: true })
+          .onConflictDoNothing();
 
         try {
           // Ensure botChat is initialized, retrying if necessary
