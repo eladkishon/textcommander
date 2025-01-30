@@ -13,14 +13,14 @@ async function initBot(userId: string) {
       qrcode.generate(qr, { small: true });
       qrCache.set(userId, qr);
     });
+
     const bus = new TextCommanderBus(client, userId);
-    // bus.add_plugin(new FriendsKeeperPlugin());
-    bus.add_plugin(new ShortcutsPlugin());
+    bus.add_plugin(new FriendsKeeperPlugin(userId));
+    bus.add_plugin(new ShortcutsPlugin(userId));
     await bus.start();
   } catch (e) {
     console.error(e);
     process.exit(1);
   }
 }
-
 export { initBot };

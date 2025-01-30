@@ -1,14 +1,18 @@
-import { Call, Chat, Client, LocalAuth, Message } from "whatsapp-web.js";
+import WAWebJS, {
+  Call,
+  Chat,
+  Client,
+  LocalAuth,
+  Message,
+} from "whatsapp-web.js";
 import * as qrcode from "qrcode-terminal";
 import { CommanderPlugin } from "./types";
-import { setupDatabase } from "./db";
+import { getDb } from "../../shared/db/db";
 import { userConfigTable } from "../../shared/db/schema";
-// import { setupDatabase } from "./db";
-// import { userConfigTable } from "../../shared/db/schema";
-
 // Emergency
 // Group helper
 // Auto Replyer
+
 export class TextCommanderBus {
   plugins: CommanderPlugin[];
   client: Client;
@@ -19,8 +23,8 @@ export class TextCommanderBus {
     this.client = client;
     this.plugins = [];
     this.userId = userId;
+    // this.botChat = undefined;
   }
-
   add_plugin(plugin: CommanderPlugin) {
     this.plugins.push(plugin);
   }
@@ -46,7 +50,7 @@ export class TextCommanderBus {
     });
 
     this.client.on("message", async (m) => {
-      console.log("Message received.", m.body);
+      // console.log("Message received.", m.body);
 
       await Promise.all(this.plugins.map((p) => p.onMessage(m)));
     });
@@ -60,12 +64,26 @@ export class TextCommanderBus {
     return new Promise<void>((resolve, reject) => {
       this.client.once("ready", async () => {
         console.log("Client is ready.");
-        const db = await setupDatabase();
-        await db
-          .insert(userConfigTable)
-          .values({ user_id: this.userId, is_initialized: true })
-          .onConflictDoNothing();
+        const db = await getDb();
 
+        // await db
+        //   .insert(userConfigTable)
+        //   .values({ user_id: this.userId, is_initialized: true })
+        //   .onConflictDoNothing();
+
+        // const insertContact = async (chat: Chat) => {
+        //   console.log((await chat.getContact()).name);
+        //   await db
+        //     .insert(contactsTable)
+        //     .values({
+        //       user_id: this.userId,
+        //       contact_id: (await chat.getContact()).name!,
+        //     })
+        //     .onConflictDoNothing();
+        // };
+
+        // (await this.client.getChats()).forEach(insertContact);
+        console.log("test");
         try {
           // Ensure botChat is initialized, retrying if necessary
           this.botChat = await retryOperation(async () => {
@@ -92,7 +110,7 @@ export class TextCommanderBus {
 
           resolve();
         } catch (err) {
-          console.error("Initialization failed:", err.message);
+          console.error("Initialization failed:", err);
           reject(err); // Reject if retries fail after all attempts
         }
       });
@@ -100,7 +118,7 @@ export class TextCommanderBus {
   }
 }
 
-const retryOperation = async (operation, maxRetries, delay = 500) => {
+const retryOperation = async (operation: any, maxRetries: any, delay = 500) => {
   let attempt = 0;
 
   while (attempt < maxRetries) {
@@ -113,7 +131,7 @@ const retryOperation = async (operation, maxRetries, delay = 500) => {
       }
       console.warn(
         `Retrying operation (attempt ${attempt}) due to error:`,
-        err.message
+        err
       );
       await new Promise((res) => setTimeout(res, delay * Math.pow(2, attempt))); // Exponential backoff
     }
