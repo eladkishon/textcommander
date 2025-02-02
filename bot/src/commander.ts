@@ -2,13 +2,15 @@ import WAWebJS, {
   Call,
   Chat,
   Client,
+  Contact,
   LocalAuth,
   Message,
 } from "whatsapp-web.js";
 import * as qrcode from "qrcode-terminal";
 import { CommanderPlugin } from "./types";
 import { getDb } from "../../shared/db/db";
-import { userConfigTable } from "../../shared/db/schema";
+import { userConfigTable, contactsTable } from "../../shared/db/schema";
+import { or } from "drizzle-orm";
 // Emergency
 // Group helper
 // Auto Replyer
@@ -66,24 +68,40 @@ export class TextCommanderBus {
         console.log("Client is ready.");
         const db = await getDb();
 
-        // await db
-        //   .insert(userConfigTable)
-        //   .values({ user_id: this.userId, is_initialized: true })
-        //   .onConflictDoNothing();
+        await db
+          .insert(userConfigTable)
+          .values({ user_id: this.userId, is_initialized: true })
+          .onConflictDoNothing();
 
-        // const insertContact = async (chat: Chat) => {
-        //   console.log((await chat.getContact()).name);
-        //   await db
-        //     .insert(contactsTable)
-        //     .values({
-        //       user_id: this.userId,
-        //       contact_id: (await chat.getContact()).name!,
-        //     })
-        //     .onConflictDoNothing();
-        // };
+        const insertContact = async (contact: Contact) => {
+          if (
+            contact.isGroup ||
+            !contact.name ||
+            !contact.isMyContact ||
+            !contact.isWAContact
+          )
+            return;
+          // Check if this contact name already exists
+          const existingContact = await db.query.contactsTable.findFirst({
+            where: (contactsTable, { eq }) =>
+              eq(contactsTable.contact_name, contact.name),
+          });
 
-        // (await this.client.getChats()).forEach(insertContact);
-        console.log("test");
+          // If a contact with the same name exists, do not insert
+          if (existingContact) return;
+
+          await db
+            .insert(contactsTable)
+            .values({
+              user_id: this.userId,
+              contact_id: contact.id.user,
+              contact_name: contact.name,
+            })
+            .onConflictDoNothing();
+        };
+
+        const contacts = await this.client.getContacts();
+        await Promise.all(contacts.map(insertContact));
         try {
           // Ensure botChat is initialized, retrying if necessary
           this.botChat = await retryOperation(async () => {

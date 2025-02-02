@@ -6,11 +6,9 @@ import Shortcuts from "./(features)/(shortcuts)";
 import { Button } from "@/components/ui/button";
 import QRCode from "react-qr-code";
 import { use, useState } from "react";
-import { useFetchQRCode } from "@/hooks/useFetchQRCode";
-import { useConnectToBot } from "@/hooks/useConnectBot";
-import { useQueryClient } from "@tanstack/react-query";
 import useBotInitializationStatus from "@/hooks/useInitializationStatus";
 import AuthenticateBot from "./AuthenticateBot";
+import FriendsKeeper from "./(features)/(friendsKeeper)";
 
 /** TODO: onClick connect - react mutation '/bots':
  * on success - start polling '/bots/:userId/qr-code' , display qr code when available
@@ -29,13 +27,13 @@ const DashboardIndexPage = () => {
 
   const isBotInitialized = useBotInitializationStatus(user.id);
 
-
   return (
     <div className="h-screen">
       {isBotInitialized ? (
         <div>
           <TitleBar title={t("title_bar")} />
           <Shortcuts />
+          <FriendsKeeper />
         </div>
       ) : (
         <AuthenticateBot userId={user.id} />

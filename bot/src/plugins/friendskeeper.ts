@@ -3,6 +3,7 @@ import schedule from "node-schedule";
 import { differenceInDays } from "date-fns";
 import FileSync from "lowdb/adapters/FileSync";
 import { getDb } from "../../../shared/db/db";
+import { getTrackedFriends } from "../../../shared/db/utils";
 import { trackedFriendsTable } from "../../../shared/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -89,45 +90,8 @@ export class FriendsKeeperPlugin {
 
   async reachOutToTrackedFriends() {
     const contacts = await this.client.getContacts(); // Get all contacts
-    const contactName = "Elad"; // Change this to the contact name you're searching for
-
-    const contact = contacts.find((c) => c.name === contactName);
-    if (!contact) {
-      console.log("contact not found!");
-      return;
-    } else {
-      console.log(
-        "name:",
-        contact.name,
-        "id:",
-        contact.id,
-        "chatId:",
-        (await contact.getChat()).id.user
-      );
-    }
-    // const trackedFriends = db.get("friends").value() as {
-    //   [key: string]: TrackedFriend;
-    // };
-    const db = await getDb();
-
-    // const trackedFriends = await db
-    //   .select()
-    //   .from(trackedFriendsTable)
-    //   .where(eq(trackedFriendsTable.user_id, this.userId));
-    // const insertedRow = await db
-    //   .insert(trackedFriendsTable)
-    //   .values({
-    //     user_id: this.userId,
-    //     friend_id: contact.id.user,
-    //   })
-    //   .returning();
-
-    // console.log(insertedRow); // [{ id: 1, user_id: "user_123", friend_id: "friend_456", created_at: ... }]
-
-    const trackedFriends = await db.query.trackedFriendsTable.findMany({
-      where: (trackedFriendsTable, { eq }) =>
-        eq(trackedFriendsTable.user_id, this.userId),
-    });
+   
+    const trackedFriends = await getTrackedFriends(this.userId);
 
     const trackedFriendsChats = trackedFriends.map(async (friend) => {
       const contact = contacts.find((c) => c.id.user === friend.friend_id);

@@ -21,12 +21,21 @@ export const weatherShortcutTable = pgTable("weather_shortcut", {
   created_at: timestamp("created_at").defaultNow(),
 });
 
-export const contactsTable = pgTable("user_contacts", {
-  id: serial("id").primaryKey(),
-  user_id: text("user_id").notNull().unique(),
-  contact_id: text("contact_id").notNull().unique(),
-  created_at: timestamp("created_at").defaultNow(),
-});
+export const contactsTable = pgTable(
+  "user_contacts",
+  {
+    id: serial("id").primaryKey(),
+    user_id: text("user_id").notNull(),
+    contact_id: text("contact_id").notNull(),
+    contact_name: text("contact_name").notNull().unique(),
+    created_at: timestamp("created_at").defaultNow(),
+  },
+  (table) => {
+    return {
+      userContactUnique: unique().on(table.user_id, table.contact_id),
+    };
+  }
+);
 
 export const trackedFriendsTable = pgTable(
   "tracked_friends",
