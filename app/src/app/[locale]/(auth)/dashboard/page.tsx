@@ -10,8 +10,7 @@ const DashboardIndexPage = () => {
       <TitleBar
         title={t('title_bar')}
       />
-
-     
+   
     </>
   );
 };
