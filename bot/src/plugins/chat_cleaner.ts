@@ -1,6 +1,5 @@
 import { Client, Message, Call, GroupChat, Chat } from "whatsapp-web.js";
 import { CommanderPlugin } from "../types";
-const { setTimeout } = require('timers/promises');
 import fs = require('fs/promises');
 import inquirer from "inquirer";
 import schedule = require('node-schedule');
