@@ -1,6 +1,4 @@
-import path from "node:path";
 import { drizzle as drizzlePg, NodePgDatabase } from "drizzle-orm/node-postgres";
-import { migrate as migratePg } from "drizzle-orm/node-postgres/migrator";
 import { Client } from "pg";
 import * as schema from "./schema";
 import "dotenv/config";
@@ -20,7 +18,7 @@ async function initializeDatabase() {
   try {
     await client.connect();
     console.log("Database connected successfully.");
-  } catch (err) {
+  } catch (err: any) {
     console.error("Connection error:", err.stack);
     throw err;
   }

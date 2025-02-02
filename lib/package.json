@@ -1,0 +1,10 @@
+{
+	"dependencies": {
+		"dotenv": "^16.4.7",
+		"drizzle-orm": "^0.39.1",
+		"pg": "^8.13.1"
+	},
+	"devDependencies": {
+		"@types/pg": "^8.11.11"
+	}
+}

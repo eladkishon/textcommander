@@ -2,11 +2,10 @@ import { Client, Message, Chat, Contact } from "whatsapp-web.js";
 import schedule from "node-schedule";
 import { differenceInDays } from "date-fns";
 import FileSync from "lowdb/adapters/FileSync";
-import { getDb } from "../../../shared/db/db";
-import { getTrackedFriends } from "../../../shared/db/utils";
-import { trackedFriendsTable } from "../../../shared/db/schema";
+import { getDb } from "../../../lib/db/db";
+import { getTrackedFriends } from "../../../lib/db/utils";
 import { eq } from "drizzle-orm";
-
+import * as schema from "../../../lib/db/schema";
 // const adapter = new FileSync("data/friendskeeper.json");
 //low(adapter);
 // db.defaults({ friends: {} }).write();
@@ -24,8 +23,8 @@ type TrackedFriend = {
 const CONTACT_INACTIVE_THRESHOLD_IN_DAYS = 30;
 
 export class FriendsKeeperPlugin {
-  client: Client;
-  commandChat: Chat;
+  client?: Client;
+  commandChat?: Chat;
   lastUnactiveFriendsChats: { chat: Chat; daysSinceLastMessage: number }[] = [];
   userId: string;
 
@@ -33,6 +32,7 @@ export class FriendsKeeperPlugin {
     this.userId = userId;
   }
   async checkForInactiveFriends() {
+    if (!this.client) return;
     const chats = await this.client.getChats();
     const friends = chats.filter((chat) => !chat.isGroup);
     const inactiveFriends = [];
@@ -80,7 +80,7 @@ export class FriendsKeeperPlugin {
         )
         .join("\n\n");
 
-      await this.commandChat.sendMessage(
+      await this.commandChat?.sendMessage(
         `TextCommander💡: Inactive Friends\n\n${message}\n\nReply with the numbers of the friends to add to your keep-in-touch circle (separated by commas).`
       );
 
@@ -89,18 +89,25 @@ export class FriendsKeeperPlugin {
   }
 
   async reachOutToTrackedFriends() {
+    if (!this.client || !this.commandChat) return;
     const contacts = await this.client.getContacts(); // Get all contacts
    
     const trackedFriends = await getTrackedFriends(this.userId);
 
-    const trackedFriendsChats = trackedFriends.map(async (friend) => {
-      const contact = contacts.find((c) => c.id.user === friend.friend_id);
-      return await contact.getChat();
-    });
+    const trackedFriendsChats = await Promise.all(
+      (trackedFriends as unknown as any[]).map(async (friend) => {
+        const contact = contacts.find((c) => c.id.user === friend.friend_id);
+        if (!contact) return;
+        return await contact.getChat();
+      })
+    );
 
     for (const trackedFriendChat of trackedFriendsChats) {
       const chat = await trackedFriendChat;
-      const friendName = (await chat.getContact()).name;
+      if (!chat) continue;
+      
+      const contact = await chat.getContact();
+      const friendName = contact.name;
 
       await chat.sendMessage(
         `Hey ${friendName}, it's been a while! How are you doing?`
@@ -140,18 +147,19 @@ export class FriendsKeeperPlugin {
       );
 
     const friendsToAdd: { chat: Chat; daysSinceLastMessage: number }[] =
-      selectedIndexes.map((i: number) => this.lastUnactiveFriendsChats[i]);
+      selectedIndexes.map((i: number) => this.lastUnactiveFriendsChats[i]).filter((f): f is { chat: Chat; daysSinceLastMessage: number } => f !== undefined);
     const db = await getDb();
 
     for (const friend of friendsToAdd) {
       const friendId = friend.chat.id.user;
 
-      db.insert(trackedFriendsTable).values({
+      db.insert(schema.trackedFriends).values({
         user_id: this.userId,
         friend_id: friendId,
       });
     }
 
+    if (!this.commandChat) return;
     await this.commandChat.sendMessage(
       `TextCommander💡: Added ${friendsToAdd
         .map((f: { chat: { name: string } }) => f.chat.name)

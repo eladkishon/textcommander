@@ -9,10 +9,10 @@ export const getWhatsappClient = async (userId: string) => {
 
   if (process.env.WHATSAPP_AUTH === "remote") {
     await mongoose.connect(
-      process.env.MONGODB_URI.replace(
+      process.env.MONGODB_URI?.replace(
         "<db_password>",
-        process.env.MONGODB_PASSWORD
-      )
+        process.env.MONGODB_PASSWORD ?? ""
+      ) ?? ""
     );
     console.log("Connected to MongoDB");
     const store = new MongoStore({ mongoose: mongoose });

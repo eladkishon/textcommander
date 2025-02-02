@@ -12,7 +12,7 @@ import { DATA_FOLDER } from "../fs";
 import { getBirthdayWish } from "../apis/birthday_wish";
 
 export class ShortcutsPlugin implements CommanderPlugin {
-  client: Client;
+  client?: Client;
 
   async init(client: Client, botChat: Chat) {
     this.client = client;
@@ -47,7 +47,7 @@ export class ShortcutsPlugin implements CommanderPlugin {
           const recipientContact = (await chat.getContact()).name;
 
           console.log("Recipient Contact:", recipientContact);
-          const birthdayWish = await getBirthdayWish(userId, recipientContact);
+          const birthdayWish = await getBirthdayWish(userId, recipientContact ?? "");
 
           console.log(birthdayWish);
           msg.reply(birthdayWish);

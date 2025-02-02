@@ -1,31 +1,21 @@
-import WAWebJS, {
-  Call,
-  Chat,
+import {
   Client,
   Contact,
-  LocalAuth,
-  Message,
 } from "whatsapp-web.js";
-import * as qrcode from "qrcode-terminal";
 import { CommanderPlugin } from "./types";
-import { getDb } from "../../shared/db/db";
-import { userConfigTable, contactsTable } from "../../shared/db/schema";
-import { or } from "drizzle-orm";
-// Emergency
-// Group helper
-// Auto Replyer
+import * as schema from "../../lib/db/schema";
+import { getDb } from "../../lib/db/db";
 
 export class TextCommanderBus {
   plugins: CommanderPlugin[];
   client: Client;
-  botChat: Chat;
   userId: string;
+  botChat: any;
 
   constructor(client: Client, userId: string) {
     this.client = client;
     this.plugins = [];
     this.userId = userId;
-    // this.botChat = undefined;
   }
   add_plugin(plugin: CommanderPlugin) {
     this.plugins.push(plugin);
@@ -69,7 +59,7 @@ export class TextCommanderBus {
         const db = await getDb();
 
         await db
-          .insert(userConfigTable)
+          .insert(schema.userConfigs)
           .values({ user_id: this.userId, is_initialized: true })
           .onConflictDoNothing();
 
@@ -82,16 +72,16 @@ export class TextCommanderBus {
           )
             return;
           // Check if this contact name already exists
-          const existingContact = await db.query.contactsTable.findFirst({
-            where: (contactsTable, { eq }) =>
-              eq(contactsTable.contact_name, contact.name),
+          const existingContact = await db.query.contacts.findFirst({
+            where: (contacts, { eq }) =>
+              eq(contacts.contact_name, contact.name ?? ""),
           });
 
           // If a contact with the same name exists, do not insert
           if (existingContact) return;
 
           await db
-            .insert(contactsTable)
+            .insert(schema.contacts)
             .values({
               user_id: this.userId,
               contact_id: contact.id.user,

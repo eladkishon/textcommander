@@ -8,20 +8,13 @@ import {
 } from "drizzle-orm/pg-core";
 
 // Shared tables for both bot and SaaS platform
-export const userConfigTable = pgTable("user_config", {
+export const userConfigs = pgTable("user_config", {
   id: serial("id").primaryKey(),
   user_id: text("user_id").notNull().unique(),
   is_initialized: boolean("is_initialized").notNull(),
 });
 
-export const weatherShortcutTable = pgTable("weather_shortcut", {
-  id: serial("id").primaryKey(),
-  user_id: text("user_id").notNull().unique(),
-  location: text("location"),
-  created_at: timestamp("created_at").defaultNow(),
-});
-
-export const contactsTable = pgTable(
+export const contacts = pgTable(
   "user_contacts",
   {
     id: serial("id").primaryKey(),
@@ -37,7 +30,7 @@ export const contactsTable = pgTable(
   }
 );
 
-export const trackedFriendsTable = pgTable(
+export const trackedFriends = pgTable(
   "tracked_friends",
   {
     id: serial("id").primaryKey(),
