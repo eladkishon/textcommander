@@ -53,43 +53,12 @@ export class TextCommanderBus {
     return new Promise<void>((resolve, reject) => {
       this.client.once("ready", async () => {
         console.log("Client is ready.");
-        const db = await getDb();
 
+        const db = await getDb();
         await db
           .insert(schema.userConfigs)
           .values({ user_id: this.userId, is_initialized: true })
           .onConflictDoNothing();
-
-        const insertContact = async (contact: Contact) => {
-          if (
-            contact.isGroup ||
-            !contact.name ||
-            !contact.isMyContact ||
-            !contact.isWAContact
-          )
-            return;
-          // Check if this contact name already exists
-          const existingContact = await db.query.contacts?.findFirst({
-            where: (contacts, { eq }) =>
-              eq(contacts.contact_name, contact.name ?? ""),
-          });
-
-          // If a contact with the same name exists, do not insert
-          if (existingContact) return;
-
-          await db
-            .insert(schema.contacts)
-            .values({
-              user_id: this.userId,
-              contact_id: contact.id.user,
-              contact_name: contact.name,
-              is_tracked: false,
-            })
-            .onConflictDoNothing();
-        };
-
-        const contacts = await this.client.getContacts();
-        await Promise.all(contacts.map(insertContact));
         try {
           // Ensure botChat is initialized, retrying if necessary
           this.botChat = await retryOperation(async () => {
