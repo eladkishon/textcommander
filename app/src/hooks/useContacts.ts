@@ -1,14 +1,29 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 
-const fetchUserContacts = async (userId: string) => {
-  const { data } = await axios.get(`/api/userContacts?userId=${userId}`);
-  return data;
-};
+// const { data, error } = await supabase.from("user_contacts").select("*").eq("user_id", user?.id);
+// if (error) {
+//   console.error("Error fetching data:", error);
+// } else {
+//   setData(data);
+// }
 
-export const useContacts = (userId: string) => {
-  return useQuery({
-    queryKey: ["userContacts", userId],
-    queryFn: () => fetchUserContacts(userId),
-  });
-};
+import { useUser } from "@clerk/nextjs";
+import { supabase } from "../../../lib/db/supabase";
+import { useQuery } from "@tanstack/react-query";
+
+export const useContacts = () => {
+  const { user } = useUser();
+
+  const query = useQuery({
+    queryKey: ["userContacts", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("user_contacts").select("*").eq("user_id", user?.id);
+      if (error) {
+        console.error("Error fetching data:", error);
+      } else {
+        return data;
+      }
+    }
+  })
+
+  return query;
+}

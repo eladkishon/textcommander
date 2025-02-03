@@ -22,6 +22,7 @@ export const contacts = pgTable(
     contact_id: text("contact_id").notNull(),
     contact_name: text("contact_name").notNull().unique(),
     created_at: timestamp("created_at").defaultNow(),
+    is_tracked: boolean("tracked").notNull(),
   },
   (table) => {
     return {
@@ -30,17 +31,3 @@ export const contacts = pgTable(
   }
 );
 
-export const trackedFriends = pgTable(
-  "tracked_friends",
-  {
-    id: serial("id").primaryKey(),
-    user_id: text("user_id").notNull(),
-    friend_id: text("friend_id").notNull(),
-    created_at: timestamp("created_at").defaultNow(),
-  },
-  (table) => {
-    return {
-      userFriendUnique: unique().on(table.user_id, table.friend_id),
-    };
-  }
-);

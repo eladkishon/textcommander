@@ -1,25 +1,27 @@
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { useContacts } from "@/hooks/useContacts";
+import { useTrackContact } from "@/services/track-contact";
+import { useUser } from "@clerk/nextjs";
+import { useState } from "react";
 
 const AddTrackedFriendModal = ({
   isOpen,
   onClose,
-  userId,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  userId: string;
 }) => {
   const [search, setSearch] = useState("");
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
-
-  const { data: contacts, isLoading } = useContacts(userId); 
+  const { user } = useUser();
+  const { mutate: trackFriend, isPending } = useTrackContact(selectedContact || "");
+  const { data: contacts, isLoading } = useContacts();
   
   if (!isOpen) return null; 
 
   // Filter contacts by search query
   const filteredContacts = search
-    ? contacts["userContacts"].filter((contact: any) =>
+    ? contacts?.filter((contact: any) =>
         contact.contact_name.toLowerCase().startsWith(search.toLowerCase())
       )
     : [];
@@ -30,9 +32,7 @@ const AddTrackedFriendModal = ({
     setSelectedContact("");
   };
 
-  const trackFriend = ()=>{
-
-  }
+  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -84,12 +84,13 @@ const AddTrackedFriendModal = ({
           >
             Close
           </button>
-          <button
-            onClick={trackFriend}
+          <Button
+            onClick={() => trackFriend()}
+            disabled={isPending}
             className="px-4 py-2 bg-green-300 rounded-lg mr-2"
           >
             Track
-          </button>
+          </Button>
         </div>
       </div>
     </div>
