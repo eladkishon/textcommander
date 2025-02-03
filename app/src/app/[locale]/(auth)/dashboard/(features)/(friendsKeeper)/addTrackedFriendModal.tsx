@@ -1,8 +1,9 @@
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useState } from 'react';
 import { useContacts } from "@/hooks/useContacts";
 import { useTrackContact } from "@/services/track-contact";
 import { useUser } from "@clerk/nextjs";
-import { useState } from "react";
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 
 const AddTrackedFriendModal = ({
   isOpen,
@@ -12,84 +13,86 @@ const AddTrackedFriendModal = ({
   onClose: () => void;
 }) => {
   const [search, setSearch] = useState("");
-  const [selectedContact, setSelectedContact] = useState<string | null>(null);
+  const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const { user } = useUser();
-  const { mutate: trackFriend, isPending } = useTrackContact(selectedContact || "");
+  const { mutate: trackContacts, isPending } = useTrackContact();
   const { data: contacts, isLoading } = useContacts();
-  
-  if (!isOpen) return null; 
+
+
 
   // Filter contacts by search query
   const filteredContacts = search
     ? contacts?.filter((contact: any) =>
-        contact.contact_name.toLowerCase().startsWith(search.toLowerCase())
+        contact.contact_name.toLowerCase().includes(search.toLowerCase())
       )
-    : [];
+    : contacts;
 
   const onModalClose = () => {
     onClose();
     setSearch("");
-    setSelectedContact("");
+    setSelectedContacts([]);
   };
 
-  
+  const toggleContactSelection = (contactName: string) => {
+    setSelectedContacts((prevSelected) =>
+      prevSelected.includes(contactName)
+        ? prevSelected.filter((name) => name !== contactName)
+        : [...prevSelected, contactName]
+    );
+  };
+
+  const handleSave = () => {
+    if (selectedContacts.length > 0) {
+      trackContacts(selectedContacts);
+    }
+  };
+
+  useEffect(() => {
+    setSelectedContacts(contacts?.filter((contact: any) => contact.tracked).map((contact: any) => contact.contact_id) || []);
+  }, [contacts]);
+
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      {/* Modal Container */}
-      <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
-        <h2 className="text-xl font-bold mb-2">Friends Keeper</h2>
-
-        {/* Search Input */}
-        <input
-          type="text"
-          placeholder="Search contact..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full p-2 border rounded-lg"
-        />
-
-        {/* Suggestions List */}
-        {search != selectedContact && (
-          <ul className="border rounded-lg mt-2 max-h-40 overflow-y-auto bg-white shadow-md">
-            {isLoading && <li className="p-2">Loading...</li>}
-            {filteredContacts?.length === 0 && !isLoading && (
-              <li className="p-2 text-gray-500">No contacts found</li>
-            )}
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-1/3">
+        <h2 className="text-xl font-semibold mb-4">Add Tracked Friends</h2>
+        <div className="mb-4">
+          <Label htmlFor="friendName" className="block text-sm font-medium text-gray-700">
+            Search Contacts
+          </Label>
+          <input
+            type="text"
+            id="friendName"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+        </div>
+        <div className="mb-4 max-h-60 overflow-y-auto">
+          {isLoading && <p className="p-2">Loading...</p>}
+          {filteredContacts?.length === 0 && !isLoading && (
+            <p className="p-2 text-gray-500">No contacts found</p>
+          )}
+          <ul className="list-none">
             {filteredContacts?.map((contact: any) => (
-              <li
-                key={contact.contact_id}
-                onClick={() => {
-                  setSearch(contact.contact_name);
-                  setSelectedContact(contact.contact_name);
-                }}
-                className="p-2 hover:bg-blue-200 cursor-pointer"
-              >
-                {contact.contact_name}
+              <li key={contact.contact_id} className="flex items-center p-2">
+                <input
+                  type="checkbox"
+                  checked={selectedContacts.includes(contact.contact_id)}
+                  onChange={() => toggleContactSelection(contact.contact_id)}
+                  className="mr-2"
+                />
+                <span className="text-gray-800">{contact.contact_name}</span>
               </li>
             ))}
           </ul>
-        )}
-
-        {/* Selected Contact Display */}
-        {selectedContact && (
-          <p className="mt-4 text-green-600">Selected: {selectedContact}</p>
-        )}
-
-        {/* Buttons */}
-        <div className="flex justify-end mt-4">
-          <button
-            onClick={onModalClose}
-            className="px-4 py-2 bg-gray-300 rounded-lg mr-2"
-          >
-            Close
-          </button>
-          <Button
-            onClick={() => trackFriend()}
-            isLoading={isPending}
-            className="px-4 py-2 bg-green-300 rounded-lg mr-2"
-          >
-            Track
+        </div>
+        <div className="flex justify-end">
+          <Button onClick={onModalClose} className="mr-2 bg-gray-200 hover:bg-gray-300 text-gray-800">
+            Cancel
+          </Button>
+          <Button onClick={handleSave} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+            Save
           </Button>
         </div>
       </div>
