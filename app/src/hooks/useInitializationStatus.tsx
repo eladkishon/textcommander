@@ -4,7 +4,7 @@ import { supabase } from "../../../lib/db/supabase";
 const getUserConfig = async (userId: string) => {
   console.log("getUserConfig", userId);
   const { data, error } = await supabase
-    .from("user_config")
+    .from("user_configs")
     .select("*")
     .eq("user_id", userId)
     .single();
