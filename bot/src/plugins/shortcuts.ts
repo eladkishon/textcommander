@@ -13,9 +13,11 @@ import { getBirthdayWish } from "../apis/birthday_wish";
 
 export class ShortcutsPlugin implements CommanderPlugin {
   client?: Client;
+  userId?: string;
 
-  async init(client: Client, botChat: Chat) {
+  async init(userId: string, client: Client, botChat: Chat) {
     this.client = client;
+    this.userId = userId;
     console.log("ShortcutsPlugin initialized");
   }
   async onMessage(msg: Message): Promise<void> {
@@ -47,7 +49,10 @@ export class ShortcutsPlugin implements CommanderPlugin {
           const recipientContact = (await chat.getContact()).name;
 
           console.log("Recipient Contact:", recipientContact);
-          const birthdayWish = await getBirthdayWish(userId, recipientContact ?? "");
+          const birthdayWish = await getBirthdayWish(
+            userId,
+            recipientContact ?? ""
+          );
 
           console.log(birthdayWish);
           msg.reply(birthdayWish);

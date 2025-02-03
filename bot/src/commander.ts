@@ -77,7 +77,8 @@ export class TextCommanderBus {
           await Promise.all(
             this.plugins.map((p) =>
               retryOperation(
-                async () => await p.init(this.client, this.botChat),
+                async () =>
+                  await p.init(this.userId, this.client, this.botChat),
                 3 // Retry each plugin up to 3 times
               )
             )

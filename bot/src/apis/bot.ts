@@ -15,7 +15,7 @@ async function initBot(userId: string) {
     });
 
     const bus = new TextCommanderBus(client, userId);
-    bus.add_plugin(new FriendsKeeperPlugin(userId));
+    bus.add_plugin(new FriendsKeeperPlugin());
     bus.add_plugin(new ShortcutsPlugin());
     await bus.start();
   } catch (e) {
