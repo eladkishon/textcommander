@@ -91,7 +91,7 @@ const AddTrackedFriendModal = ({
           <Button onClick={onModalClose} className="mr-2 bg-gray-200 hover:bg-gray-300 text-gray-800">
             Cancel
           </Button>
-          <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white" disabled={isPending}>
+          <Button onClick={handleSave} className="bg-primary" disabled={isPending}>
             Save
           </Button>
         </div>

@@ -40,9 +40,6 @@ const Shortcuts = () => {
             Weather
           </span>
         </div>
-        <Button onClick={save} disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 text-white">
-          {isLoading ? "Saving..." : "Save"}
-        </Button>
       </div>
 
       <div className="flex items-center justify-between py-2">

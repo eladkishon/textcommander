@@ -12,7 +12,7 @@ const FriendsKeeper = () => {
     <div className="w-full flex flex-col border border-gray-300 p-6 rounded-lg shadow-md bg-white">
       <div className="flex justify-between items-center pb-4">
         <h2 className="text-2xl font-semibold text-gray-800">Friends Keeper</h2>
-        <Button onClick={() => setShowEditContactsModal(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
+        <Button onClick={() => setShowEditContactsModal(true)} className=" text-white">
           Edit Tracked Contacts
         </Button>
       </div>
