@@ -1,22 +1,30 @@
 "use client";
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useSaveWeatherShortcut } from "@/hooks/useSaveWeatherShortcut";
-import { addTrackedFriend } from "../../../../../../../../shared/db/utils";
-import { useTrackedFriends } from "@/hooks/useTrackedFriends";
-import { useToggleTrackedFriend } from "@/hooks/useToggleTrackedFriend";
 import AddTrackedFriendModal from "./addTrackedFriendModal";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "../../../../../../../../lib/db/supabase";
+
 
 const FriendsKeeper = () => {
   const [friendName, setFriendName] = useState<string>("");
   const [showAddFriendModal, setShowAddFriendModal] = useState<boolean>(false);
-
+  const [data, setData] = useState<any>([]);
   const userId = "user_2roH7uYsYk5m4ORVmNkCw7KLqrh";
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data, error } = await supabase.from("user_contacts").select("*").eq("user_id", userId);
+      if (error) {
+        console.error("Error fetching data:", error);
+      } else {
+        setData(data);
+      }
+    };
+    fetchData();
+  }, []);
 
-  const { data: trackedFriends, isLoading, error } = useTrackedFriends(userId);
-  // const toggleTrackedFriend = useToggleTrackedFriend(userId);
-  console.log("trackedFriends", trackedFriends);
+  console.log("data", data);
   return (
     <div className="w-full flex flex-col border-2 border-gray-200 p-5">
       <div className="flex pb-10 justify-between gap-2">

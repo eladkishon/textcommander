@@ -9,6 +9,7 @@ import { use, useState } from "react";
 import useBotInitializationStatus from "@/hooks/useInitializationStatus";
 import AuthenticateBot from "./AuthenticateBot";
 import FriendsKeeper from "./(features)/(friendsKeeper)";
+import { supabase } from "../../../../../../lib/db/supabase";
 
 /** TODO: onClick connect - react mutation '/bots':
  * on success - start polling '/bots/:userId/qr-code' , display qr code when available
@@ -20,12 +21,12 @@ import FriendsKeeper from "./(features)/(friendsKeeper)";
 const DashboardIndexPage = () => {
   const t = useTranslations("DashboardIndex");
   const { isSignedIn, user } = useUser();
+  const { isBotInitialized } = useBotInitializationStatus(user?.id);
 
   if (!isSignedIn || !user) {
     return null;
   }
 
-  const isBotInitialized = useBotInitializationStatus(user.id);
 
   return (
     <div className="h-screen">

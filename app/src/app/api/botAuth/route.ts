@@ -6,11 +6,8 @@
 //     return response.data.message;
 //   };
 
-import { NextRequest } from "next/server";
-import { db } from "../../../../../shared/db/db";
-import { weatherShortcutTable } from "../../../../../shared/db/schema";
 import axios from "axios";
-import { QrCode } from "lucide-react";
+import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
@@ -65,6 +62,8 @@ export async function GET(req: NextRequest) {
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
+
+    console.log('Bot URL:', process.env.NEXT_PUBLIC_BOT_URL);
 
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_BOT_URL}/bots/${userId}/qrcode`

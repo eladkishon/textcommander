@@ -1,6 +1,6 @@
 import axios from "axios";
 import { NextRequest } from "next/server";
-import { getUserContacts } from "../../../../../shared/db/utils";
+import { getUserContacts } from "../../../../../lib/db/utils";
 
 export async function GET(req: NextRequest) {
   try {

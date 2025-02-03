@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
-import { db } from "../../../../../shared/db/db";
-import { userConfigTable } from "../../../../../shared/db/schema";
 import { NextRequest, NextResponse } from "next/server";
+import * as schema from "../../../../../lib/db/schema";
+import { getDb } from "../../../../../lib/db/db";
 
 export async function GET(req: NextRequest) {
   try {
@@ -17,10 +17,11 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const db = await getDb();
     const userConfig = await db
       .select()
-      .from(userConfigTable)
-      .where(eq(userConfigTable.user_id, userId));
+      .from(schema.userConfigs)
+      .where(eq(schema.userConfigs.user_id, userId));
 
     console.log("Query result:", userConfig);
 
