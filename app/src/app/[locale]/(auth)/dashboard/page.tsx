@@ -2,13 +2,13 @@
 import { useTranslations } from "next-intl";
 import { useUser } from "@clerk/nextjs";
 import { TitleBar } from "@/features/dashboard/TitleBar";
-import Shortcuts from "./(features)/(shortcuts)";
+import Shortcuts from "./features/shortcuts";
 import { Button } from "@/components/ui/button";
 import QRCode from "react-qr-code";
 import { use, useState } from "react";
 import useBotInitializationStatus from "@/hooks/useInitializationStatus";
 import AuthenticateBot from "./AuthenticateBot";
-import FriendsKeeper from "./(features)/(friendsKeeper)";
+import FriendsKeeper from "./features/friendsKeeper";
 import { supabase } from "../../../../../../lib/db/supabase";
 
 /** TODO: onClick connect - react mutation '/bots':
