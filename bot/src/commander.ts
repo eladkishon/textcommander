@@ -1,7 +1,4 @@
-import {
-  Client,
-  Contact,
-} from "whatsapp-web.js";
+import { Client, Contact } from "whatsapp-web.js";
 import { CommanderPlugin } from "./types";
 import * as schema from "../../lib/db/schema";
 import { getDb } from "../../lib/db/db";
@@ -72,7 +69,7 @@ export class TextCommanderBus {
           )
             return;
           // Check if this contact name already exists
-          const existingContact = await db.query.contacts.findFirst({
+          const existingContact = await db.query.contacts?.findFirst({
             where: (contacts, { eq }) =>
               eq(contacts.contact_name, contact.name ?? ""),
           });
@@ -86,6 +83,7 @@ export class TextCommanderBus {
               user_id: this.userId,
               contact_id: contact.id.user,
               contact_name: contact.name,
+              is_tracked: false,
             })
             .onConflictDoNothing();
         };

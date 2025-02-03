@@ -3,8 +3,7 @@ import schedule from "node-schedule";
 import { differenceInDays } from "date-fns";
 import FileSync from "lowdb/adapters/FileSync";
 import { getDb } from "../../../lib/db/db";
-import { getTrackedFriends } from "../../../lib/db/utils";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import * as schema from "../../../lib/db/schema";
 // const adapter = new FileSync("data/friendskeeper.json");
 //low(adapter);
@@ -20,12 +19,13 @@ type TrackedFriend = {
   lastContacted: number;
 };
 
-const CONTACT_INACTIVE_THRESHOLD_IN_DAYS = 30;
+const CONTACT_INACTIVE_THRESHOLD_IN_DAYS = 0;
 
 export class FriendsKeeperPlugin {
   client?: Client;
   commandChat?: Chat;
   lastUnactiveFriendsChats: { chat: Chat; daysSinceLastMessage: number }[] = [];
+  friendsChatsToSendMessage: Chat[] = [];
   userId: string;
 
   constructor(userId: string) {
@@ -33,12 +33,34 @@ export class FriendsKeeperPlugin {
   }
   async checkForInactiveFriends() {
     if (!this.client) return;
-    const chats = await this.client.getChats();
-    const friends = chats.filter((chat) => !chat.isGroup);
     const inactiveFriends = [];
+    const db = await getDb();
 
-    for (const friend of friends) {
-      const messages = await friend.fetchMessages({ limit: 50 });
+    // const tracked_friends = await db.query.contacts.findMany({
+    //   where: (user_contacts, { eq, and }) =>
+    //     and(eq(user_contacts.user_id, this.userId), eq(user_contacts.is_tracked, true)),
+    // });
+
+    const tracked_friends = await db
+      .select()
+      .from(schema.contacts)
+      .where(
+        and(
+          eq(schema.contacts.user_id, this.userId),
+          eq(schema.contacts.is_tracked, true)
+        )
+      );
+
+    console.log("tracked_friends", tracked_friends);
+
+    for (const friend of tracked_friends) {
+      const friend_contact = await this.client.getContactById(
+        `${friend.contact_id}@c.us`
+      );
+      console.log("friend_contact", friend_contact);
+      const friend_chat = await friend_contact.getChat();
+      console.log("friend_chat", friend_chat);
+      const messages = await friend_chat.fetchMessages({ limit: 50 });
       if (!messages.length) continue;
 
       const lastMessageDate = new Date(messages.at(-1)!.timestamp * 1000);
@@ -46,30 +68,15 @@ export class FriendsKeeperPlugin {
         new Date(),
         lastMessageDate
       );
-
-      if (
-        daysSinceLastMessage < CONTACT_INACTIVE_THRESHOLD_IN_DAYS &&
-        daysSinceLastMessage > 10
-      ) {
+      console.log("daysSinceLastMessage", daysSinceLastMessage);
+      if (daysSinceLastMessage > CONTACT_INACTIVE_THRESHOLD_IN_DAYS) {
         inactiveFriends.push({
-          chat: friend,
+          chat: friend_chat,
           daysSinceLastMessage,
         });
-
-        // const friendId = friend.id._serialized;
-        // db.insert(trackedFriendsTable).values({
-        //   user_id: this.userId,
-        //   friend_id: friendId,
-        // });
-        // db.insert()
-        // if (db.get("friends").has(friendId).value()) {
-        //   db.get("friends")
-        //     .set(`${friendId}.lastContacted`, lastMessageDate.toISOString())
-        //     .write();
-        // }
       }
     }
-
+    console.log("inactiveFriends", inactiveFriends);
     if (inactiveFriends.length) {
       const message = inactiveFriends
         .map(
@@ -91,25 +98,20 @@ export class FriendsKeeperPlugin {
   async reachOutToTrackedFriends() {
     if (!this.client || !this.commandChat) return;
     const contacts = await this.client.getContacts(); // Get all contacts
-   
-    const trackedFriends = await getTrackedFriends(this.userId);
 
-    const trackedFriendsChats = await Promise.all(
-      (trackedFriends as unknown as any[]).map(async (friend) => {
-        const contact = contacts.find((c) => c.id.user === friend.friend_id);
-        if (!contact) return;
-        return await contact.getChat();
-      })
-    );
+    // const trackedFriendsChats = await Promise.all(
+    //   (trackedFriends as unknown as any[]).map(async (friend) => {
+    //     const contact = contacts.find((c) => c.id.user === friend.friend_id);
+    //     if (!contact) return;
+    //     return await contact.getChat();
+    //   })
+    // );
 
-    for (const trackedFriendChat of trackedFriendsChats) {
-      const chat = await trackedFriendChat;
-      if (!chat) continue;
-      
-      const contact = await chat.getContact();
+    for (const trackedFriendChat of this.friendsChatsToSendMessage) {
+      const contact = await trackedFriendChat.getContact();
       const friendName = contact.name;
 
-      await chat.sendMessage(
+      await trackedFriendChat.sendMessage(
         `Hey ${friendName}, it's been a while! How are you doing?`
       );
     }
@@ -118,7 +120,7 @@ export class FriendsKeeperPlugin {
   async init(client: Client, commandChat: Chat) {
     this.client = client;
     this.commandChat = commandChat;
-    console.log("client", client);
+    // console.log("client", client);
     await this.checkForInactiveFriends();
 
     schedule.scheduleJob("0 0 * * *", async () => {
@@ -131,7 +133,6 @@ export class FriendsKeeperPlugin {
 
   async onCommand(command: string) {
     if (command === "friends") {
-      console.log("press friends");
       await this.checkForInactiveFriends();
       return;
     }
@@ -146,26 +147,25 @@ export class FriendsKeeperPlugin {
           !isNaN(i) && i >= 0 && i < this.lastUnactiveFriendsChats.length
       );
 
-    const friendsToAdd: { chat: Chat; daysSinceLastMessage: number }[] =
-      selectedIndexes.map((i: number) => this.lastUnactiveFriendsChats[i]).filter((f): f is { chat: Chat; daysSinceLastMessage: number } => f !== undefined);
-    const db = await getDb();
+    const friendsToSendMessage: { chat: Chat; daysSinceLastMessage: number }[] =
+      selectedIndexes
+        .map((i: number) => this.lastUnactiveFriendsChats[i])
+        .filter(
+          (f): f is { chat: Chat; daysSinceLastMessage: number } =>
+            f !== undefined
+        );
 
-    for (const friend of friendsToAdd) {
-      const friendId = friend.chat.id.user;
-
-      db.insert(schema.trackedFriends).values({
-        user_id: this.userId,
-        friend_id: friendId,
-      });
-    }
-
-    if (!this.commandChat) return;
-    await this.commandChat.sendMessage(
-      `TextCommander💡: Added ${friendsToAdd
-        .map((f: { chat: { name: string } }) => f.chat.name)
-        .join(", ")} to your keep-in-touch circle.`
+    // if (!this.commandChat) return;
+    // await this.commandChat.sendMessage(
+    //   `TextCommander💡: Added ${friendsToAdd
+    //     .map((f: { chat: { name: string } }) => f.chat.name)
+    //     .join(", ")} to your keep-in-touch circle.`
+    // );
+    console.log("friendsToSendMessage", friendsToSendMessage);
+    this.friendsChatsToSendMessage = friendsToSendMessage.map(
+      (obj) => obj.chat
     );
-
+    console.log("friendsToSendMessageChats", this.friendsChatsToSendMessage);
     await this.reachOutToTrackedFriends();
 
     this.lastUnactiveFriendsChats = [];
