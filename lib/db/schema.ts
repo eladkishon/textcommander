@@ -5,6 +5,7 @@ import {
   timestamp,
   boolean,
   unique,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 // Shared tables for both bot and SaaS platform
@@ -30,4 +31,23 @@ export const contacts = pgTable(
     };
   }
 );
+
+export const shortcuts = pgTable("shortcuts", {
+  id: serial("id").primaryKey(),
+  user_id: text("user_id").notNull(),
+  shortcut_name: text("shortcut_name").notNull(),
+  settings: jsonb("settings").$type<any>(),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+  is_enabled: boolean("is_enabled").notNull(),
+}, (table) => {
+  return {
+    userShortcutUnique: unique().on(table.user_id, table.shortcut_name),
+  };
+});
+
+
+export type Shortcut = typeof shortcuts.$inferSelect;
+export type NewShortcut = typeof shortcuts.$inferInsert;
+
 
