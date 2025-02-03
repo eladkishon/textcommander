@@ -86,7 +86,7 @@ const AddTrackedFriendModal = ({
           </button>
           <Button
             onClick={() => trackFriend()}
-            disabled={isPending}
+            isLoading={isPending}
             className="px-4 py-2 bg-green-300 rounded-lg mr-2"
           >
             Track
