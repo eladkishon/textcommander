@@ -2,13 +2,13 @@ import { useUser } from "@clerk/nextjs";
 import { supabase } from "../../../lib/db/supabase";
 import { useMutation } from "@tanstack/react-query";
 
-export const trackContacts = async (userId: string, contactIds: string[]) => {
+export const trackContact = async (userId: string, contactId: string, tracked: boolean) => {
   const { data, error } = await supabase
     .from("user_contacts")
     .update({
-      tracked: true,
+      tracked: tracked,
     })
-    .in("contact_id", contactIds)
+    .eq("contact_id", contactId)
     .eq("user_id", userId);
 
   if (error) {
@@ -20,11 +20,10 @@ export const trackContacts = async (userId: string, contactIds: string[]) => {
 
 export const useTrackContact = () => {
   const { user } = useUser();
-
   return useMutation({
-    mutationFn: async (contactIds: string[]) => {
-      if (user?.id && contactIds.length > 0) {
-        await trackContacts(user.id, contactIds);
+    mutationFn: async ({ contactId, tracked }: { contactId: string; tracked: boolean }) => {
+      if (user?.id && contactId) {
+        await trackContact(user.id, contactId, tracked);
       }
     },
     onSuccess: () => {

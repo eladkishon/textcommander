@@ -16,7 +16,7 @@ const AddTrackedFriendModal = ({
 }) => {
   const [search, setSearch] = useState("");
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
-  const { mutate: trackContacts, isPending } = useTrackContact();
+  const { mutate: trackContact, isPending } = useTrackContact();
   const { data: contacts, isLoading } = useContacts();
 
   const filteredContacts = search
@@ -28,22 +28,18 @@ const AddTrackedFriendModal = ({
   const onModalClose = () => {
     onClose();
     setSearch("");
-    setSelectedContacts([]);
   };
 
-  const toggleContactSelection = (contactId: string) => {
+  const toggleContactSelection = async (contactId: string, checked: boolean) => {
+    await trackContact({ contactId, tracked: checked });
     setSelectedContacts((prevSelected) =>
       prevSelected.includes(contactId)
         ? prevSelected.filter((id) => id !== contactId)
         : [...prevSelected, contactId]
     );
-  };
 
-  const handleSave = () => {
-    if (selectedContacts.length > 0) {
-      trackContacts(selectedContacts);
-    }
   };
+  
 
   useEffect(() => {
     setSelectedContacts(
@@ -79,21 +75,13 @@ const AddTrackedFriendModal = ({
               <li key={contact.contact_id} className="flex items-center p-2 hover:bg-gray-100">
                 <Checkbox
                   checked={selectedContacts.includes(contact.contact_id)}
-                  onChange={() => toggleContactSelection(contact.contact_id)}
+                  onCheckedChange={(checked) => toggleContactSelection(contact.contact_id, checked)}
                   className="mr-2"
                 />
                 <span className="text-gray-800">{contact.contact_name}</span>
               </li>
             ))}
           </ul>
-        </div>
-        <div className="flex justify-end">
-          <Button onClick={onModalClose} className="mr-2 bg-gray-200 hover:bg-gray-300 text-gray-800">
-            Cancel
-          </Button>
-          <Button onClick={handleSave} className="bg-primary" disabled={isPending}>
-            Save
-          </Button>
         </div>
       </DialogContent>
     </Dialog>
