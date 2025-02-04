@@ -3,6 +3,7 @@ import schedule from "node-schedule";
 import { differenceInDays } from "date-fns";
 import { getDb } from "../../../lib/db/db";
 import * as schema from "../../../lib/db/schema";
+import { eq } from "drizzle-orm";
 import { and } from "drizzle-orm";
 
 const CONTACT_INACTIVE_THRESHOLD_IN_DAYS = 1;
@@ -28,15 +29,20 @@ export class FriendsKeeperPlugin {
     if (!this.userId) return [];
     const db = await getDb();
 
-    return await db
-      .select()
-      .from(schema.contacts)
-      .where(
-        and(
-          eq(schema.contacts.user_id, this.userId),
-          eq(schema.contacts.is_tracked, true)
-        )
-      );
+    console.log("DB Query Object:", db.query);
+    console.log("DB Contacts Object:", db.query.contacts);
+
+    if (!db.query || !db.query.contacts) {
+        console.error("DB query or contacts object is undefined");
+        return [];
+    }
+
+    return await db.query.contacts.findMany({
+      where: and(
+        eq(schema.contacts.user_id, this.userId),
+        eq(schema.contacts.is_tracked, true)
+      ),
+    });
   }
 
   private async getInactiveFriends() {

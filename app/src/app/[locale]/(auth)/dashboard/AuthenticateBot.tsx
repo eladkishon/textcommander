@@ -24,6 +24,7 @@ export const AuthenticateBot = () => {
   });
 
   function onConnect() {
+    setQRCode(null);
     connectMutation.mutate();
     fetchQRCodeMutation.mutateAsync().then(({qrcode}) => {
       setQRCode(qrcode);

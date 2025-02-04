@@ -12,7 +12,7 @@ importers:
         specifier: ^0.33.1
         version: 0.33.1
       '@supabase/supabase-js':
-        specifier: ^2.48.0
+        specifier: ^2.48.1
         version: 2.48.1
       '@types/lowdb':
         specifier: ^1.0.15
@@ -33,8 +33,8 @@ importers:
         specifier: ^16.4.7
         version: 16.4.7
       drizzle-orm:
-        specifier: ^0.38.4
-        version: 0.38.4(@types/pg@8.11.11)(pg@8.13.1)(postgres@3.4.5)
+        specifier: ^0.39.1
+        version: 0.39.1(@types/pg@8.11.11)(pg@8.13.1)(postgres@3.4.5)
       esm:
         specifier: ^3.2.25
         version: 3.2.25
@@ -42,7 +42,7 @@ importers:
         specifier: ^4.21.2
         version: 4.21.2
       inquirer:
-        specifier: ^12.3.0
+        specifier: ^12.3.3
         version: 12.3.3(@types/node@22.12.0)
       lowdb:
         specifier: ^1.0.0
@@ -94,7 +94,7 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       '@types/node':
-        specifier: ^22.10.10
+        specifier: ^22.12.0
         version: 22.12.0
       '@types/node-schedule':
         specifier: ^2.1.7
@@ -103,7 +103,7 @@ importers:
         specifier: ^0.12.2
         version: 0.12.2
       drizzle-kit:
-        specifier: ^0.30.2
+        specifier: ^0.30.4
         version: 0.30.4
       ts-node:
         specifier: ^10.9.2
@@ -992,8 +992,8 @@ packages:
     resolution: {integrity: sha512-B2oJN5UkvwwNHscPWXDG5KqAixu7AUzZ3qbe++KU9SsQ+cZWR4DXEPYcvWplyFAno0dhRJECNEhNxiDmFaPGyQ==}
     hasBin: true
 
-  drizzle-orm@0.38.4:
-    resolution: {integrity: sha512-s7/5BpLKO+WJRHspvpqTydxFob8i1vo2rEx4pY6TGY7QSMuUfWUuzaY0DIpXCkgHOo37BaFC+SJQb99dDUXT3Q==}
+  drizzle-orm@0.39.1:
+    resolution: {integrity: sha512-2bDHlzTY31IDmrYn8i+ZZrxK8IyBD4mPZ7JmZdVDQj2tpBZXs/gxB/1kK5pSvkjxPUMNOVsTnoGkSltgjuJwcA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=4'
@@ -3148,7 +3148,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.38.4(@types/pg@8.11.11)(pg@8.13.1)(postgres@3.4.5):
+  drizzle-orm@0.39.1(@types/pg@8.11.11)(pg@8.13.1)(postgres@3.4.5):
     optionalDependencies:
       '@types/pg': 8.11.11
       pg: 8.13.1

@@ -18,7 +18,7 @@ async function initializeDatabase() {
     
     console.log("Database connecting...", process.env.DATABASE_URL);
     const client = postgres(process.env.DATABASE_URL as string, { prepare: false })
-    drizzleInstance = drizzle({ client });
+    drizzleInstance = drizzle({ client, schema });
   } catch (err: any) {
     console.error("Connection error:", err.stack);
     throw err;

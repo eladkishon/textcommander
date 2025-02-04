@@ -24,7 +24,8 @@ export const contacts = pgTable(
     contact_name: text("contact_name").notNull().unique(),
     created_at: timestamp("created_at").defaultNow(),
     is_tracked: boolean("tracked").notNull(),
-  },
+  }
+  ,
   (table) => {
     return {
       userContactUnique: unique().on(table.user_id, table.contact_id),
