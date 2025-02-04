@@ -2,8 +2,8 @@ import { Client, Message, Chat, Contact } from "whatsapp-web.js";
 import schedule from "node-schedule";
 import { differenceInDays } from "date-fns";
 import { getDb } from "../../../lib/db/db";
-import { and, eq } from "drizzle-orm";
 import * as schema from "../../../lib/db/schema";
+import { and } from "drizzle-orm";
 
 const CONTACT_INACTIVE_THRESHOLD_IN_DAYS = 1;
 

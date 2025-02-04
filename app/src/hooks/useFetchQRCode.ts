@@ -1,19 +1,22 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-export const useFetchQRCode = (userId: string | undefined) => {
-  return useQuery({
-    queryKey: ["qr_code", userId],
-    queryFn: async () => {
+export const useFetchQRCodeMutation = (userId: string | undefined) => {
+  const mutation =  useMutation({
+    mutationKey: ["qr_code", userId],
+    mutationFn: async () => {
       if (!userId) {
         throw new Error("userId is required");
       }
 
       const response = await axios.get(`/api/botAuth?userId=${userId}`);
 
-      return response.data.qrCode;
+      return {qrcode: response.data.qrCode}
     },
-    enabled: !!userId,
+    retry: 10,
+    retryDelay: 4000,
   });
+
+  return mutation;
 };

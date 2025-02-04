@@ -8,7 +8,7 @@ import QRCode from "react-qr-code";
 import { use, useState } from "react";
 import useBotInitializationStatus from "@/hooks/useInitializationStatus";
 import AuthenticateBot from "./AuthenticateBot";
-import FriendsKeeper from "./features/friendsKeeper";
+import FriendsKeeper from "./features/friendsKeeper/friends-keeper-view";
 import { supabase } from "../../../../../../lib/db/supabase";
 
 /** TODO: onClick connect - react mutation '/bots':
@@ -31,13 +31,12 @@ const DashboardIndexPage = () => {
   return (
     <div className="h-screen">
       {isBotInitialized ? (
-        <div>
-          <TitleBar title={t("title_bar")} />
+        <div className="flex flex-col gap-4 md:w-2/3 mx-auto" >
           <Shortcuts />
           <FriendsKeeper />
         </div>
       ) : (
-        <AuthenticateBot userId={user.id} />
+        <AuthenticateBot/>
       )}
     </div>
   );

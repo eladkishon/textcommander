@@ -1,42 +1,56 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useConnectToBot } from "@/hooks/useConnectBot";
-import { useFetchQRCode } from "@/hooks/useFetchQRCode";
+import { useFetchQRCodeMutation } from "@/hooks/useFetchQRCode";
+import { useUser } from "@clerk/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { LoaderCircle, LoaderCircleIcon } from "lucide-react";
 import { useState } from "react";
 import QRCode from "react-qr-code";
 
-export const AuthenticateBot = ({ userId }: { userId: string }) => {
-  const [isStartingBotEnabled, setIsStartingBotEnabled] = useState(true);
+export const AuthenticateBot = () => {
+  const {user} = useUser();
   const queryClient = useQueryClient();
+  const [qrcode, setQRCode] = useState<string | null>(null);
 
-  const { data: qrCode, isLoading: isQRCodeLoading } = useFetchQRCode(userId);
+  if (!user) {
+    return null;
+  }
 
-  const connectMutation = useConnectToBot(userId, () => {
-    queryClient.invalidateQueries({ queryKey: ["qr_code", userId] });
+  const fetchQRCodeMutation = useFetchQRCodeMutation(user.id);
+
+  const connectMutation = useConnectToBot(user.id, () => {
+    queryClient.invalidateQueries({ queryKey: ["qr_code", user.id] });
   });
 
-  // Connect to the bot when button is clicked
-  const handleConnect = () => {
-    setIsStartingBotEnabled(false);
+  function onConnect() {
     connectMutation.mutate();
-  };
+    fetchQRCodeMutation.mutateAsync().then(({qrcode}) => {
+      setQRCode(qrcode);
+    });
+  }
+
 
   return (
     <div className="flex flex-col items-center justify-center gap-8">
-      <p>Connect our bot to your whatsapp</p>
+      <h1 className="text-2xl">Setup TextCommander on your whatsapp</h1>
 
-      <Button onClick={handleConnect} disabled={!isStartingBotEnabled}>
-        Connect
+      <Button onClick={onConnect} isLoading={connectMutation.isPending} disabled={fetchQRCodeMutation.isPending}>
+        {qrcode ? "Refresh QR Code" : "Connect"}
       </Button>
 
-      {qrCode && (
+      {qrcode && (
         <div className="pt-4">
-          <QRCode size={100} value={qrCode} />
+          <QRCode size={300} value={qrcode} />
         </div>
       )}
 
-      {isQRCodeLoading && <p>Loading QR code...</p>}
+      {fetchQRCodeMutation.isPending && (
+        <>
+          <LoaderCircle />
+          <p>Loading QR code...</p>
+        </>
+      )}
     </div>
   );
 };
