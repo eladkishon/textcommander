@@ -11,6 +11,7 @@ import { Client } from 'pg';
 import * as schema from '@/models/Schema';
 
 import { Env } from './Env';
+import 'dotenv/config';
 
 let client;
 let drizzle;
@@ -37,6 +38,8 @@ if (process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD && Env.DATABASE_URL) {
   }
 
   drizzle = global.drizzle;
+  console.log("Running migrations...");
+
   await migratePglite(global.drizzle, {
     migrationsFolder: path.join(process.cwd(), 'migrations'),
   });

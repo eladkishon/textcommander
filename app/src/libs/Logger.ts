@@ -8,12 +8,12 @@ let stream: DestinationStream;
 
 if (Env.LOGTAIL_SOURCE_TOKEN) {
   stream = pino.multistream([
-    await logtail({
-      sourceToken: Env.LOGTAIL_SOURCE_TOKEN,
-      options: {
-        sendLogsToBetterStack: true,
-      },
-    }),
+    // await logtail({
+    //   sourceToken: Env.LOGTAIL_SOURCE_TOKEN,
+    //   options: {
+    //     sendLogsToBetterStack: true,
+    //   },
+    // }),
     {
       stream: pretty(), // Prints logs to the console
     },

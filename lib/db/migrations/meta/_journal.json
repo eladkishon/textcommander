@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1737817372580,
+      "tag": "0000_create_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1738559250715,
+      "tag": "0001_serious_solo",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1738561303297,
+      "tag": "0002_flat_lifeguard",
+      "breakpoints": true
+    }
+  ]
+}
