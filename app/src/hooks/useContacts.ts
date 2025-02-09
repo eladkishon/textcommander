@@ -19,6 +19,7 @@ export const useContacts = () => {
       const { data, error } = await supabase.from("user_contacts").select("*").eq("user_id", user?.id);
       if (error) {
         console.error("Error fetching data:", error);
+        return [];
       } else {
         return data;
       }

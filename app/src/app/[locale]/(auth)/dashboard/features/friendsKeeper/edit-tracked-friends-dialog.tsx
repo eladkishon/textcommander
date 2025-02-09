@@ -75,7 +75,7 @@ const AddTrackedFriendModal = ({
               <li key={contact.contact_id} className="flex items-center p-2 hover:bg-gray-100">
                 <Checkbox
                   checked={selectedContacts.includes(contact.contact_id)}
-                  onCheckedChange={(checked) => toggleContactSelection(contact.contact_id, checked)}
+                  onCheckedChange={(checked: boolean) => toggleContactSelection(contact.contact_id, checked)}
                   className="mr-2"
                 />
                 <span className="text-gray-800">{contact.contact_name}</span>

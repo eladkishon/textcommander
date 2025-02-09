@@ -1,25 +1,27 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { getDb } from "./db"; // import your db instance
-import { trackedFriends, contacts } from "./schema"; // import your schema (table)
+import {  contacts } from "./schema"; // import your schema (table)
 
 export const getTrackedFriends = async (userId: string) => {
   const db = await getDb();
   const friends = await db
     .select()
-    .from(trackedFriends)
-    .where(eq(trackedFriends.user_id, userId));
+    .from(contacts)
+    .where(and(eq(contacts.user_id, userId), eq(contacts.is_tracked, true)));
   console.log("userContacts:", friends);
-  return trackedFriends;
+  return friends;
 };
 
 export const addTrackedFriend = async (userId: string, friendId: string) => {
   try {
     const db = await getDb();
     const insertedRow = await db
-      .insert(trackedFriends)
+      .insert(contacts)
       .values({
         user_id: userId,
-        friend_id: friendId,
+        contact_id: friendId,
+        contact_name: friendId,
+        is_tracked: true,
       })
       .returning();
     return insertedRow;
