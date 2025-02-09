@@ -65,6 +65,7 @@
     "**/*.tsx",
     ".storybook/*.ts",
     ".next/types/**/*.ts",
-    "**/*.mts"
-  ]
+    "**/*.mts",
+    "../lib/**/*"
+, "../drizzle.config.ts"  ]
 }

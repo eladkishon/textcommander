@@ -1,4 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+
 import {
   type NextFetchEvent,
   type NextRequest,
@@ -31,8 +32,8 @@ export default function middleware(
     || request.nextUrl.pathname.includes('/sign-up')
     || isProtectedRoute(request)
   ) {
-    return clerkMiddleware((auth, req) => {
-      const authObj = auth();
+    return clerkMiddleware(async (auth, req) => {
+      const authObj =await auth();
 
       if (isProtectedRoute(req)) {
         const locale
@@ -40,10 +41,10 @@ export default function middleware(
 
         const signInUrl = new URL(`${locale}/sign-in`, req.url);
 
-        authObj.protect({
-          // `unauthenticatedUrl` is needed to avoid error: "Unable to find `next-intl` locale because the middleware didn't run on this request"
-          unauthenticatedUrl: signInUrl.toString(),
-        });
+        // authObj.protect({
+        //   // `unauthenticatedUrl` is needed to avoid error: "Unable to find `next-intl` locale because the middleware didn't run on this request"
+        //   unauthenticatedUrl: signInUrl.toString(),
+        // });
       }
 
       // if (
@@ -67,6 +68,14 @@ export default function middleware(
   return intlMiddleware(request);
 }
 
+// export const config = {
+//   matcher: ['/((?!.+\\.[\\w]+$|_next|monitoring).*)', '/', '/(api|trpc)(.*)'], // Also exclude tunnelRoute used in Sentry from the matcher
+// };
 export const config = {
-  matcher: ['/((?!.+\\.[\\w]+$|_next|monitoring).*)', '/', '/(api|trpc)(.*)'], // Also exclude tunnelRoute used in Sentry from the matcher
+  matcher: [
+    '/((?!api|_next|.+\\.[\\w]+$|monitoring).*)', // Exclude `api` routes by default
+    '/',
+    '/dashboard(.*)', // Include dashboard routes
+    '/onboarding(.*)', // Include onboarding routes
+  ],
 };
