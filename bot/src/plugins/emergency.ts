@@ -1,12 +1,11 @@
 import { Call, Chat, Contact, Message } from "whatsapp-web.js";
 import { Client, LocalAuth } from 'whatsapp-web.js';
-import Anthropic from "@anthropic-ai/sdk";
 import { EventTracker } from "../utils/event_tracker";
 import { CommanderPlugin } from "../types";
 
-const aiClient = new Anthropic({
-    apiKey: process.env['ANTHROPIC_API_KEY'], // This is the default and can be omitted
-});
+// const aiClient = new Anthropic({
+//     apiKey: process.env['ANTHROPIC_API_KEY'], // This is the default and can be omitted
+// });
 
 
 const emergencyContactsSearchTerms = ['miri', 'dad', 'roy']
@@ -23,7 +22,7 @@ class EmergencyContactHandler {
     contact: Contact;
     eventTracker: EventTracker;
     isEmergencyActive: boolean;
-    chat: Chat;
+    chat: Chat | null = null
     messagesCount: number
     maxEmergencyResponseMessages: number;
     emergencyFirstResponse: string;
@@ -56,16 +55,16 @@ class EmergencyContactHandler {
         if (this.isEmergencyActive && this.messagesCount < this.maxEmergencyResponseMessages) {
             console.log('Emergency Plugin: Message receieved - ', msg.body)
 
-            const response = await aiClient.messages.create({
-                max_tokens: 100,
-                system: personalityPrompt,
-                messages: [{ role: 'user', content: msg.body }],
-                model: 'claude-3-5-sonnet-latest',
-            });
+            // const response = await aiClient.messages.create({
+            //     max_tokens: 100,
+            //     system: personalityPrompt,
+            //     messages: [{ role: 'user', content: msg.body }],
+            //     model: 'claude-3-5-sonnet-latest',
+            // });
 
-            const resMessage = response.content.find(c => c.type == 'text')?.text
-            this.chat.sendMessage(resMessage)
-            this.messagesCount += 1
+            // const resMessage = response.content.find(c => c.type == 'text')?.text
+            // this.chat.sendMessage(resMessage)
+            // this.messagesCount += 1
         }
 
     }
@@ -84,7 +83,7 @@ const DEFAULT_EMERGE_RESP = 'היי מה נשמע ?'
 
 export class EmergencyPlugin implements CommanderPlugin {
    
-    async init(client: Client) {
+    async init(userId: string, client: Client, botChat: Chat) {
         console.log('Initializing emergency plugin')
         const contacts = await client.getContacts()
         const emergencyContacts = contacts.filter(c => emergencyContactsSearchTerms.some(ec => c.name?.toLowerCase().includes(ec.toLowerCase())) && c.id.server == 'c.us')
@@ -95,18 +94,18 @@ export class EmergencyPlugin implements CommanderPlugin {
     }
     async onMessage(msg: Message) {
         if (emergencyContactsStateById[msg.from]) {
-            await emergencyContactsStateById[msg.from].onMessageReceived(msg)
+            await emergencyContactsStateById[msg.from]?.onMessageReceived(msg)
         }
     }
     async onCall(call: Call) {
-        if (emergencyContactsStateById[call.from]) {
-            console.log(`Incoming call from ${emergencyContactsStateById[call.from].contact.name}`)
-            emergencyContactsStateById[call.from].onIncomingCall(call)
+        // if (emergencyContactsStateById[call.from ?? '']) {
+        //     console.log(`Incoming call from ${emergencyContactsStateById[call.from].contact.name}`)
+        //     emergencyContactsStateById[call.from ?? ''].onIncomingCall(call)
 
-        }
+        // }
     }
     onCommand(command: string): Promise<void> {
-        return 
+        return Promise.resolve()
     }
 }
 

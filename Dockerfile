@@ -15,13 +15,14 @@ RUN apt-get update && \
 COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # Copy the rest of the application code
-COPY . .
+COPY bot ./bot
+COPY lib ./lib
 
 # Build the application
-RUN npm run build
+RUN npm run build --prefix bot
 
 # Runtime Stage
 FROM node:22-slim
@@ -37,15 +38,13 @@ RUN apt-get update && \
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-
 # Copy the build artifacts from the builder stage
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/bot/dist ./dist
 
 # Copy the lockfile and node_modules from the builder stage for runtime
 COPY --from=builder /app/pnpm-lock.yaml ./
 COPY --from=builder /app/node_modules ./node_modules
 RUN mkdir -p data
 
-
 # Set the default command
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/bot/src/main.js"]
