@@ -1,4 +1,3 @@
-/* eslint-disable jsonc/sort-keys */
 {
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],
@@ -31,14 +30,9 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
 
-    "jsx": "preserve",
     "noEmit": true,
     "isolatedModules": true,
     "incremental": true,
-
-    // Load types
-    "types": ["vitest/globals"],
-
     // Path aliases
     "baseUrl": ".",
     "paths": {
@@ -46,12 +40,7 @@
       "@/public/*": ["./public/*"]
     },
 
-    // Editor support
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+  
   },
   "exclude": [
     "./out/**/*",
