@@ -6,3 +6,12 @@ export interface CommanderPlugin {
   onCall(call: Call): Promise<void>;
   onCommand(command: string): Promise<void>;
 }
+
+export type UserContact = {
+  id: number;
+  user_id: string;
+  contact_id: string;
+  contact_name: string;
+  created_at: Date | null;
+  is_tracked: boolean;
+};

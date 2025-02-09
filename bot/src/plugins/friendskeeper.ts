@@ -72,6 +72,8 @@ export class FriendsKeeperPlugin {
   async handleInactiveFriendsCheck() {
     if (!this.client) return;
 
+    this.trackedFriends = await this.getTrackedFriends();
+
     if (this.trackedFriends.length === 0) {
       await this.commandChat?.sendMessage(
         `TextCommander💡: You don't track any friends.`
