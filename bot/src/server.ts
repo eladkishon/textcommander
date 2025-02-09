@@ -16,32 +16,42 @@ app.get("/health", (req, res) => {
   res.send("OK");
 });
 
-app.get("/bots/:userId/qrcode", (req, res) => {
-  const { userId } = req.params;
-  // console.log("Getting QR code...", userId);
-  const qrCode = qrCache.get(userId);
-  // console.log("QR code", qrCode);
-  if (qrCode) {
-    res.status(200).json({ qrCode });
-  } else {
-    res.status(400).json({ message: "QR code not found." });
+async function getOrCreateQrCode(userId: string) {
+  const existingQrCode = qrCache.get(userId);
+  if (existingQrCode) {
+    return { success: true, qrCode: existingQrCode };
   }
-});
 
-app.post("/bots/:userId", (req, res) => {
+  try {
+    console.log("QR code not found, starting new bot...", userId);
+    await initBot(userId);
+    const newQrCode = qrCache.get(userId);
+
+    if (!newQrCode) {
+      return { 
+        success: false, 
+        error: "Failed to generate QR code" 
+      };
+    }
+
+    return { success: true, qrCode: newQrCode };
+  } catch (error) {
+    console.error("Error starting bot:", error);
+    return { 
+      success: false, 
+      error: "Error starting bot" 
+    };
+  }
+}
+
+app.get("/bots/:userId/qrcode", async (req, res) => {
   const { userId } = req.params;
-  console.log("Starting bot...", userId);
-  if (userId) {
-    initBot(userId)
-      .then(() => {
-        console.log("Bot started");
-      })
-      .catch((e) => {
-        console.error(e);
-      });
-    res.status(200).json({ message: "bot is started" }); // Send the QR code data to the frontend
+  const result = await getOrCreateQrCode(userId);
+
+  if (result.success) {
+    res.status(200).json({ qrCode: result.qrCode });
   } else {
-    res.status(400).json({ message: "bot has not started." }); // Error message if QR code not available
+    res.status(500).json({ message: result.error });
   }
 });
 
