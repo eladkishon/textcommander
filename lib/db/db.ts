@@ -1,4 +1,3 @@
-import { Client } from "pg";
 import * as schema from "./schema";
 import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
@@ -23,11 +22,6 @@ async function initializeDatabase() {
     console.error("Connection error:", err.stack);
     throw err;
   }
-
-  // Run migrations only once
-  // await migratePg(drizzle, {
-  //   migrationsFolder: path.join(process.cwd(), "./migrations"),
-  // });
 
   return drizzleInstance;
 }
