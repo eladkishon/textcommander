@@ -11,7 +11,7 @@
     "strictNullChecks": true,
     "noUncheckedIndexedAccess": true,
 
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": false,
@@ -30,16 +30,17 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
 
-    // "noEmit": true,
+    "noEmit": true,
     "isolatedModules": true,
     "incremental": true,
     // Path aliases
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@/public/*": ["./public/*"],
-      "@/lib/*": ["../../lib/*"]
+      "@/public/*": ["./public/*"]
     },
+
+  
   },
   "exclude": [
     "./out/**/*",
@@ -54,6 +55,6 @@
     ".storybook/*.ts",
     ".next/types/**/*.ts",
     "**/*.mts",
-    "../../lib/**/*.ts"
+    "../lib/**/*.ts"
   ]
 }

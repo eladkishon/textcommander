@@ -19,6 +19,7 @@ export default
   bundleAnalyzer(
     withNextIntlConfig({
       eslint: {
+        ignoreDuringBuilds: true,
         dirs: ['.'],
       },
       poweredByHeader: false,

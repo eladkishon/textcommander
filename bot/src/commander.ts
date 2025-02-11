@@ -1,7 +1,8 @@
-import { Client } from "whatsapp-web.js";
+import { Client, Contact } from "whatsapp-web.js";
 import { CommanderPlugin } from "./types";
 import * as schema from "../../lib/db/schema";
 import { getDb } from "../../lib/db/db";
+import { saveAllContacts } from "./apis/user_contacts";
 
 export class TextCommanderBus {
   plugins: CommanderPlugin[];

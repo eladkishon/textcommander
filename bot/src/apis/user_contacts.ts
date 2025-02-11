@@ -3,6 +3,7 @@ import { getDb } from "../../../lib/db/db";
 import * as schema from "../../../lib/db/schema";
 import { and, eq } from "drizzle-orm";
 import { UserContact } from "../types";
+import { cp } from "fs";
 
 export const getContact = async (
   client: Client,
