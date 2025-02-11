@@ -1,11 +1,4 @@
 {
-    "builds": [
-      {
-        "src": "app/package.json",
-        "use": "@vercel/next"
-      }
-    ],
-    "buildCommand": "pnpm install && cd app && pnpm install && pnpm run build",
-    "outputDirectory": "app/.next"
-  }
+    "installCommand": "pnpm i && cd ../ && pnpm i"
+}
   
