@@ -1,4 +1,4 @@
 {
-    "installCommand": "pnpm i && cd ../ && pnpm i"
+    "installCommand": "pnpm i && cd ../ && pnpm i && cd ../lib && pnpm i"
 }
   
