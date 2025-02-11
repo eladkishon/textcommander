@@ -1,7 +1,10 @@
 {
 	"dependencies": {
 		"@supabase/supabase-js": "^2.48.1",
-		"drizzle-kit": "^0.30.4",
 		"drizzle-orm": "^0.39.1"
+	},
+	"devDependencies": {
+		"vercel": "^41.0.3",
+		"drizzle-kit": "^0.30.4"
 	}
 }
