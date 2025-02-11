@@ -6,12 +6,14 @@ import schedule = require('node-schedule');
 import { DATA_FOLDER } from "../fs";
 import path = require("path");
 
+
+
 export class ChatCleanerPlugin implements CommanderPlugin {
    
-    client: Client | null = null
+    client: Client;
 
 
-    async init(userId: string, client: Client, botChat: Chat): Promise<void> {
+    async init(client: Client): Promise<void> {
         console.log('Starting chat cleaner')
         this.client = client
 
@@ -31,7 +33,6 @@ export class ChatCleanerPlugin implements CommanderPlugin {
 
 
     private async deleteChats() {
-        if (!this.client) return
         const myNumber = this.client.info.wid.user
         const chats = await this.client.getChats()
 
@@ -95,7 +96,7 @@ export class ChatCleanerPlugin implements CommanderPlugin {
     }
 
     onCommand(command: string): Promise<void> {
-        return Promise.resolve()
+        return 
     }
 
 }
